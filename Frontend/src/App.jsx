@@ -5,15 +5,24 @@ import {
   Building2,
   User,
   Box,
-  FileSignature
+  FileSignature,
+  RectangleHorizontal,
+  Cpu,
+  MoveLeft,
+  MoveRight
 } from "lucide-react";
 
 import {
   useWeb3AuthConnect,
   useWeb3AuthDisconnect,
   useWeb3AuthUser,
-  useWeb3Auth
+  useWeb3Auth,
 } from "@web3auth/modal/react";
+
+
+
+import { BrowserProvider } from "ethers";
+
 
 function App() {
   const orbitronStyle = { fontFamily: "Orbitron, sans-serif" };
@@ -24,7 +33,8 @@ function App() {
   const { connect } = useWeb3AuthConnect();
   const { disconnect } = useWeb3AuthDisconnect();
   const { userInfo, isLoading } = useWeb3AuthUser();
-  const { isConnected } = useWeb3Auth();
+  const { isConnected, provider } = useWeb3Auth();
+
 
   const [selectedRole, setSelectedRole] = useState(null);
 
@@ -46,9 +56,14 @@ function App() {
 
   async function handleCreateUser(userInfo, role) {
     try {
+      if (!provider) throw new Error("Web3Auth provider not ready");
+      const ethersProvider = new BrowserProvider(provider);
+      const signer = await ethersProvider.getSigner();
+      const walletAddress = await signer.getAddress();
+      console.log(walletAddress);
       const res = await axios.post(
         "http://localhost:5000/api/auth/register",
-        { role },
+        { role, walletAddress },
         {
           headers: {
             Authorization: `Bearer ${userInfo.idToken}`,
@@ -60,13 +75,39 @@ function App() {
         throw new Error("Registration failed");
       }
 
-      navigate(role === "company" ? "/company" : "/user");
+      navigate(role === "company" ? "/company/register" : "/user/register");
 
     } catch (err) {
       console.error("Registration failed:", err.response?.data || err);
       disconnect();
     }
   }
+
+  async function checkIfAuthorized() {
+    try {
+      const res = await axios.get('http://localhost:5000/api/auth/validate', {
+        withCredentials: true
+      })
+
+      if (!res.data.data) {
+        navigate('/')
+      }
+
+      if (res.data.data?.role == 'company') {
+        navigate('/company/register')
+      }else{
+        navigate('/user/register')
+
+      }
+    } catch (error) {
+      console.log(error)
+      navigate('/');
+    }
+  }
+
+  useEffect(() => {
+    checkIfAuthorized()
+  }, [])
 
 
 
@@ -84,25 +125,11 @@ function App() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.95))]" />
 
 
-      <div className="absolute inset-0 pointer-events-none z-[1]">
-        <FileSignature
-          size={180}
-          strokeWidth={0.6}
-          className="absolute top-30  text-purple-200"
-        />
-        <Box
-          size={180}
-          strokeWidth={0.6}
-          className="absolute top-[15%] right-4 text-indigo-400"
-        />
-
-      </div>
-
       <nav className="relative z-20">
         <div className="absolute inset-0 backdrop-blur-3xl bg-white/[0.04]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
 
-        <div className="relative flex items-center justify-between px-6 md:px-8 py-4 max-w-7xl mx-auto">
+        <div className="relative bg-transparent flex items-center justify-between px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <Link to="/" className="flex items-center gap-3">
             <span className="hidden md:block text-sm tracking-widest text-white/70">
               CONSENT LEDGER
@@ -133,7 +160,7 @@ function App() {
       </nav>
 
 
-      <main className="relative z-10 flex flex-col items-center px-6 pt-16 pb-28 text-white">
+      <main className="relative z-10 flex flex-col items-center px-6 py-7 text-white">
         <h1
           style={orbitronStyle}
           className="text-4xl md:text-5xl font-semibold text-center"
@@ -145,14 +172,15 @@ function App() {
           Transparent, verifiable consent powered by blockchain and AI
         </p>
 
-        <div className="mt-16 flex flex-col md:flex-row gap-16">
+        <div className="mt-16 items-center
+              justify-center flex flex-col md:flex-row gap-16">
           {/* Company */}
           <div
             className="
-              group relative w-[360px] rounded-lg
-              bg-white/3 backdrop-blur-2xl p-6
+              
+              group relative w-[300px] rounded-lg
+              bg-white/3 backdrop-blur-md p-8
               border border-[#7fa4c4]
-              shadow-[0_0_0_1px_#7fa4c4,0_0_40px_rgba(127,164,196,0.45)]
               hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.65)]
               transition-all duration-500 hover:-translate-y-1
             "
@@ -187,15 +215,89 @@ function App() {
             </button>
           </div>
 
+          <div className="relative flex items-center justify-center">
+            <RectangleHorizontal
+              size={280}
+              strokeWidth={0.8}
+              className="text-[#7fa4c4]/30"
+            />
+
+            {/* TOP */}
+            <div className="absolute top-9 left-1/2 -translate-x-1/2">
+              <div className="
+                relative p-2 rounded-xl bg-[#232a35]
+                transition-all duration-300
+                hover:scale-110
+                hover:shadow-[0_0_22px_rgba(120,180,220,0.45)]
+              ">
+                <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br
+                  from-[#6fb9ff]/60 to-[#cfa8ff]/55 blur-xl opacity-0
+                  group-hover:opacity-100" />
+                <Cpu size={40} strokeWidth={0.8} className="text-[#9ed0ff]" />
+              </div>
+            </div>
+
+            <div className="absolute left-0 top-1/2 -translate-y-1/2">
+              <div className="
+                  relative p-2 rounded-xl bg-[#232a35]
+                  transition-all duration-300
+                  hover:scale-110
+                  hover:shadow-[0_0_22px_rgba(90,200,170,0.45)]
+                ">
+                <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br
+                    from-[#5fe3c0]/60 to-[#9ddcff]/50 blur-xl opacity-0
+                    group-hover:opacity-100" />
+                <Building2 size={40} strokeWidth={0.8} className="text-[#7ff0d0]" />
+              </div>
+            </div>
+
+            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+              <div className="
+                  relative p-2 rounded-xl bg-[#232a35]
+                  transition-all duration-300
+                  hover:scale-110
+                  hover:shadow-[0_0_22px_rgba(210,140,200,0.45)]
+                ">
+                <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br
+                from-[#e29cff]/60 to-[#ffb3d9]/55 blur-xl opacity-0
+                group-hover:opacity-100" />
+                <User size={40} strokeWidth={0.8} className="text-[#f2b6ff]" />
+              </div>
+            </div>
+
+            <div className="absolute bottom-9 left-1/2 -translate-x-1/2">
+              <div className="
+                relative p-2 rounded-xl bg-[#232a35]
+                transition-all duration-300
+                hover:scale-110
+                hover:shadow-[0_0_22px_rgba(220,160,120,0.45)]
+              ">
+                <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br
+              from-[#ffb36b]/60 to-[#ff9ac1]/55 blur-xl opacity-0
+              group-hover:opacity-100" />
+                <Box size={40} strokeWidth={0.8} className="text-[#ffd2a1]" />
+              </div>
+            </div>
+
+            <div className="
+                    absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                    flex flex-col items-center leading-none
+                    transition-all duration-300
+                    hover:scale-110
+                    hover:drop-shadow-[0_0_18px_rgba(255,255,255,0.35)]
+                ">
+              <MoveLeft size={70} strokeWidth={1.5} className="text-white/80" />
+              <MoveRight size={70} strokeWidth={1.5} className="text-white/80 -mt-8" />
+            </div>
+          </div>
 
 
           {/* User */}
           <div
             className="
-              group relative w-[380px] rounded-lg
-              bg-white/2 backdrop-blur-xl p-8
+              group relative w-[300px] rounded-lg
+              bg-white/2 backdrop-blur-md p-8
               border border-[#9b8fc4]
-              shadow-[0_0_45px_rgba(155,143,196,0.25)]
               hover:shadow-[0_0_70px_rgba(155,143,196,0.45)]
               transition-all duration-500 hover:-translate-y-1
             "
@@ -217,7 +319,7 @@ function App() {
 
             <button
 
-              onClick={() => { handleLogin("user") }}
+              onClick={() => { handleLogin("consumer") }}
               className="
                 mt-10 w-full rounded-xl py-3 text-sm font-medium
                 bg-gradient-to-r from-[#9b8fc4]/65 to-[#b1a5da]/65
