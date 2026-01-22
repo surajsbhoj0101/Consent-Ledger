@@ -18,7 +18,7 @@ console.log("Parsed cookies:", req.cookies);
     req.id = decoded.id;
     req.address = decoded.address;
     req.role = decoded.role;
-
+    console.log("Came here")
     return next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });

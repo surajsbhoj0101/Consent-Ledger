@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import dotenv from "dotenv";
-import Company from "../models/company.model.js"
+import Company from "../models/company.model.js";
+import Consumer from "../models/consumer.model.js";
 
 dotenv.config();
 
@@ -43,43 +44,49 @@ export const register = async (req, res) => {
         ],
       });
 
-      if (role === 'company') {
+      if (role === "company") {
         await Company.create({
-          userId: user._id.toString()
-        })
+          userId: user._id.toString(),
+        });
+      } else {
+        await Consumer.create({
+          userId: user._id.toString(),
+        });
       }
     }
-    console.log("came for th")
+    console.log("came for th");
 
     const nowInSeconds = Math.floor(Date.now() / 1000);
     const remainingSeconds = decoded.exp - nowInSeconds;
 
-
     if (remainingSeconds <= 0) {
       return res.status(401).json({ error: "Web3Auth session expired" });
     }
+    const primaryWallet = user.wallets.find((w) => w.isPrimary);
+
+    if (!primaryWallet) {
+      throw new Error("Primary wallet not found");
+    }
 
     const payload = {
-      id: user._id.toString(),
-      address: walletAddress.toLowerCase(),
-      role: role,
+      id: user._id, 
+      address: primaryWallet.address.toLowerCase(),
+      role: user.role,
     };
 
-    const jwtToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      {
-        expiresIn: remainingSeconds,
-      }
-    );
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: remainingSeconds,
+    });
 
     res.cookie("access_token", jwtToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "lax",
       maxAge: remainingSeconds * 1000,
+      path: "/",
     });
-    console.log("set success")
+    console.log("Cookie set successfully for:", walletAddress);
+    console.log("Set success");
 
     return res.json({ success: true, user });
   } catch (err) {
@@ -89,7 +96,6 @@ export const register = async (req, res) => {
 };
 
 function getAuthProvider(userInfo) {
-
   if (userInfo?.aggregateVerifier) {
     if (userInfo?.aggregateVerifier.includes("google")) {
       return "web3auth_google";
@@ -99,6 +105,9 @@ function getAuthProvider(userInfo) {
     }
     if (userInfo?.aggregateVerifier.includes("email")) {
       return "web3auth_email";
+    }
+    if(userInfo?.aggregateVerifier.includes("sms")){
+      return "web3auth_mobile"
     }
   }
 
@@ -115,7 +124,7 @@ export const getAuthData = async (req, res) => {
         message: "Unauthorized",
       });
     }
-    console.log("Got here for taking")
+    console.log("Got here for taking");
     return res.status(200).json({
       success: true,
       data: {

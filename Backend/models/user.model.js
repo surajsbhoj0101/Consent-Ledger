@@ -11,7 +11,7 @@ const walletSchema = new mongoose.Schema(
 
         provider: {
             type: String,
-            enum: ["metamask", "web3auth_google", "web3auth_email", "web3auth_wallet"],
+            enum: ["metamask", "web3auth_google", "web3auth_email", "web3auth_wallet", "web3auth_mobile"],
             required: true,
         },
 
@@ -40,10 +40,6 @@ const userSchema = new mongoose.Schema(
             enum: ["consumer", "company"],
             required: true,
         },
-
-        email: String,
-        name: String,
-        profileImage: String,
 
         wallets: {
             type: [walletSchema],

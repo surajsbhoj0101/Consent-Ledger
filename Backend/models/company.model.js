@@ -46,6 +46,11 @@ const companySchema = new mongoose.Schema(
             },
         },
 
+        isRegistered:{
+            type: Boolean,
+            default: false
+        },
+
         profileUrl: {
             type: String,
         },
