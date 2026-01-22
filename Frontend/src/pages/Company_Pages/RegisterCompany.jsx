@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Building2, Mail, Phone, MapPin, Globe } from 'lucide-react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 function RegisterCompany() {
   const [formData, setFormData] = useState({
@@ -15,7 +15,10 @@ function RegisterCompany() {
     industry: '',
     description: ''
   })
-  const { navigate } = useNavigate();
+
+  const [notice, setNotice] = useState()
+  const [redNotice, setRedNotice] = useState(false);
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false)
 
   const handleChange = (e) => {
@@ -26,25 +29,67 @@ function RegisterCompany() {
     }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Form Data:', formData)
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-  }
-
-  const fields = ['companyName', 'email', 'phone', 'address', 'city', 'country', 'website', 'industry', 'description']
+  const fields = ['companyName', 'email', 'phone', 'address', 'website', 'industry', 'description']
   const filledFields = fields.filter(field => formData[field].trim() !== '').length
-  const requiredFields = ['companyName', 'email']
+  const requiredFields = ['companyName', 'email', 'website', 'industry', 'website'];
   const filledRequired = requiredFields.filter(field => formData[field].trim() !== '').length
   const progressPercentage = Math.round((filledFields / fields.length) * 100)
 
   const robotoStyle = { fontFamily: "Roboto, sans-serif" }
   const orbitronStyle = { fontFamily: "Orbitron, sans-serif" }
 
+  const handleSubmitCompanyDetails = async () => {
+    if (filledRequired != requiredFields.length) {
+      setRedNotice(true);
+      setNotice("Required fields missing")
+      return;
+    }
+
+    const payload = {
+      name: formData.companyName.trim(),
+      email: formData.email.trim(),
+      website: formData.website?.trim(),
+      address: formData.address?.trim(),
+      industry: formData.industry,
+      description: formData.description?.trim(),
+    };
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/company/edit-company-details`,
+        payload,
+        { withCredentials: true }
+      );
+
+      if (!response.data?.success) {
+        console.error("Update failed:", response.data.message);
+        return;
+      }
+      setRedNotice(false);
+      setNotice("Company details updated successfully");
+      setTimeout(() => {
+
+      }, 2000);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "API Error:",
+          error.response?.data?.message || error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      setTimeout(() => {
+        setRedNotice(true);
+        setNotice("an error occured");
+
+      }, 2000);
+    }
+  };
+
   async function checkIfAuthorized() {
     try {
-      const res = await axios.get('http://localhost:3000/api/auth/', {
+      const res = await axios.get('http://localhost:5000/api/auth/validate', {
         withCredentials: true
       })
 
@@ -53,11 +98,22 @@ function RegisterCompany() {
       }
 
       if (res.data.data?.role != 'company') {
-        navigate('/')
+        setTimeout(() => {
+          navigate('/')
+        }, 2000);
+        setRedNotice(true);
+        setNotice("You are not Registered !!");
       }
     } catch (error) {
       console.log(error)
-      navigate('/');
+
+      setTimeout(() => {
+        console.log("Nav")
+        navigate('/')
+      }, 2000);
+      setRedNotice(true);
+      setNotice("You are not Registered !!");
+
     }
   }
 
@@ -65,12 +121,34 @@ function RegisterCompany() {
     checkIfAuthorized()
   }, [])
 
+  const removeNotice = () => {
+    setNotice("")
+    setRedNotice(false)
+  }
 
 
 
   return (
+
     <div style={robotoStyle} className='relative min-h-screen overflow-hidden bg-[#282d36] py-12 px-4'>
       <div className="absolute inset-0 bg-[#12151b]" />
+      {notice && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            onClick={removeNotice}
+            className={`
+              px-4 py-2 rounded-lg shadow-lg cursor-pointer
+              backdrop-blur-md transition-all text-white
+              ${redNotice
+                        ? "bg-red-500/20 border border-red-500/40 text-red-300"
+                        : "bg-teal-400/20 border border-teal-400/40 text-teal-300"}
+            `}
+          >
+            {notice}
+          </div>
+        </div>
+
+      )}
 
       {/* Background gradients */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
@@ -101,6 +179,7 @@ function RegisterCompany() {
         <div
           className="
             group relative rounded-2xl
+            space-y-4
             bg-white/3 backdrop-blur-md p-8 md:p-10
             border border-[#7fa4c4]/40
             hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.35)]
@@ -124,155 +203,155 @@ function RegisterCompany() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Company Name */}
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                Company Name <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleChange}
-                required
-                placeholder="Enter your company name"
-                className="
+
+          {/* Company Name */}
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">
+              Company Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              required
+              placeholder="Enter your company name"
+              className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
                   focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                   transition-all duration-300
                 "
-              />
-            </div>
+            />
+          </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  <Mail size={16} className="inline mr-2" />
-                  Email Address <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="company@example.com"
-                  className="
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                <Mail size={16} className="inline mr-2" />
+                Email Address <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="company@example.com"
+                className="
                     w-full px-4 py-3 rounded-lg
                     bg-white/5 border border-[#7fa4c4]/30
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                     transition-all duration-300
                   "
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  <Phone size={16} className="inline mr-2" />
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
-                  className="
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                <Phone size={16} className="inline mr-2" />
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 (555) 123-4567"
+                className="
                     w-full px-4 py-3 rounded-lg
                     bg-white/5 border border-[#7fa4c4]/30
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                     transition-all duration-300
                   "
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                <MapPin size={16} className="inline mr-2" />
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Street address"
-                className="
-                  w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
-                  text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
-                  transition-all duration-300
-                "
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                <Globe size={16} className="inline mr-2" />
-                Website <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="url"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                required
-                placeholder="https://example.com"
-                className="
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">
+              <MapPin size={16} className="inline mr-2" />
+              Address
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Street address"
+              className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
                   focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                   transition-all duration-300
                 "
-              />
-            </div>
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                Industry <span className="text-red-400">*</span>
-              </label>
-              <select
-                name="industry"
-                value={formData.industry}
-                required
-                onChange={handleChange}
-                className="
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">
+              <Globe size={16} className="inline mr-2" />
+              Website <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="url"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              required
+              placeholder="https://example.com"
+              className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
                   focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                   transition-all duration-300
                 "
-              >
-                <option value="" className=" bg-[#282d36] ">Select Industry</option>
-                <option value="Technology" className="bg-[#282d36] ">Technology</option>
-                <option value="Healthcare" className="bg-[#282d36]">Healthcare</option>
-                <option value="Finance" className="bg-[#282d36]">Finance</option>
-                <option value="Retail" className="bg-[#282d36]">Retail</option>
-                <option value="Manufacturing" className="bg-[#282d36]">Manufacturing</option>
-                <option value="Other" className="bg-[#282d36]">Other</option>
-              </select>
-            </div>
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                Company Description <span className="text-red-400">*</span>
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                placeholder="Brief description of your company..."
-                rows="4"
-                className="
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">
+              Industry <span className="text-red-400">*</span>
+            </label>
+            <select
+              name="industry"
+              value={formData.industry}
+              required
+              onChange={handleChange}
+              className="
+                  w-full px-4 py-3 rounded-lg
+                  bg-white/5 border border-[#7fa4c4]/30
+                  text-white placeholder-white/30
+                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  transition-all duration-300
+                "
+            >
+              <option value="" className=" bg-[#282d36] ">Select Industry</option>
+              <option value="Technology" className="bg-[#282d36] ">Technology</option>
+              <option value="Healthcare" className="bg-[#282d36]">Healthcare</option>
+              <option value="Finance" className="bg-[#282d36]">Finance</option>
+              <option value="Retail" className="bg-[#282d36]">Retail</option>
+              <option value="Manufacturing" className="bg-[#282d36]">Manufacturing</option>
+              <option value="Other" className="bg-[#282d36]">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2">
+              Company Description <span className="text-red-400">*</span>
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              placeholder="Brief description of your company..."
+              rows="4"
+              className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
@@ -280,13 +359,15 @@ function RegisterCompany() {
                   transition-all duration-300
                   resize-none
                 "
-              />
-            </div>
+            />
+          </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="
+          {/* Submit Button */}
+          <button
+            onClick={handleSubmitCompanyDetails}
+            type="submit"
+            disabled={filledRequired < requiredFields.length}
+            className="
                 w-full mt-8 py-3 px-6 rounded-xl
                 bg-gradient-to-r from-[#7fa4c4]/65 to-[#5f88ad]/65
                 hover:from-[#7fa4c4] hover:to-[#5f88ad]
@@ -295,10 +376,9 @@ function RegisterCompany() {
                 hover:shadow-[0_0_30px_rgba(127,164,196,0.5)]
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
-            >
-              {submitted ? 'Details Saved!' : 'Save Company Details'}
-            </button>
-          </form>
+          >
+            {submitted ? 'Details Saved!' : 'Save Company Details'}
+          </button>
 
           {submitted && (
             <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center">

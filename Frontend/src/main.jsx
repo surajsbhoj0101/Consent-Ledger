@@ -14,7 +14,7 @@ import App from "./App";
 import Navbar from "./components/Navbar";
 import Company_Details_Input from "./pages/Company_Pages/RegisterCompany";
 import RegisterCompany from "./pages/Company_Pages/RegisterCompany";
-import RegisterUser from "./pages/User_Pages/RegisterUser"
+import RegisterConsumer from "./pages/User_Pages/RegisterConsumer"
 
 const queryClient = new QueryClient();
 
@@ -33,15 +33,17 @@ const router = createBrowserRouter([
     path: "/company/register",
     element: (
       <>
+      
         <RegisterCompany />
       </>
     )
   },
   {
-    path: "/user/register",
+    path: "/consumer/register",
     element: (
       <>
-        <RegisterUser />
+
+        <RegisterConsumer />
       </>
     )
   }

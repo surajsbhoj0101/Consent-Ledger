@@ -6,7 +6,6 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(),
   tailwindcss({
-    // Pass your theme configuration directly to the plugin
     config: {
       theme: {
         extend: {

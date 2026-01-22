@@ -68,6 +68,7 @@ function App() {
           headers: {
             Authorization: `Bearer ${userInfo.idToken}`,
           },
+          withCredentials: true,
         }
       );
 
@@ -75,7 +76,7 @@ function App() {
         throw new Error("Registration failed");
       }
 
-      navigate(role === "company" ? "/company/register" : "/user/register");
+      navigate(role === "company" ? "/company/register" : "/consumer/register");
 
     } catch (err) {
       console.error("Registration failed:", err.response?.data || err);
@@ -96,7 +97,7 @@ function App() {
       if (res.data.data?.role == 'company') {
         navigate('/company/register')
       }else{
-        navigate('/user/register')
+        navigate('/consumer/register')
 
       }
     } catch (error) {

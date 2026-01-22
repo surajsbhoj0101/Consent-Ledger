@@ -1,22 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from "react-router-dom";
+import axios from "axios"
 import { User, Mail, Phone, MapPin, Building2, Briefcase, CheckCircle2, AlertCircle } from 'lucide-react'
 
-function RegisterUser() {
+function RegisterConsumer() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     address: '',
-    city: '',
-    country: '',
-    profession: '',
-    company: '',
     bio: ''
   })
-
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState({})
+  const [notice, setNotice] = useState()
+  const [redNotice, setRedNotice] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -24,61 +24,130 @@ function RegisterUser() {
       ...prev,
       [name]: value
     }))
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }))
-    }
+
   }
 
-  const validateForm = () => {
-    const newErrors = {}
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required'
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required'
-    if (!formData.email.trim()) newErrors.email = 'Email is required'
-    if (formData.email && !formData.email.includes('@')) newErrors.email = 'Invalid email format'
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required'
-    if (!formData.address.trim()) newErrors.address = 'Address is required'
-    if (!formData.city.trim()) newErrors.city = 'City is required'
-    if (!formData.country.trim()) newErrors.country = 'Country is required'
-    if (!formData.profession.trim()) newErrors.profession = 'Profession is required'
-    if (!formData.company.trim()) newErrors.company = 'Company name is required'
-    if (!formData.bio.trim()) newErrors.bio = 'Bio is required'
-    return newErrors
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const newErrors = validateForm()
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
-    }
-    
-    console.log('Form Data:', formData)
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-  }
-
-  const fields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'country', 'profession', 'company', 'bio']
+  const fields = ['firstName', 'lastName', 'email', 'phone', 'address', 'bio']
   const filledFields = fields.filter(field => formData[field].trim() !== '').length
-  const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'country', 'profession', 'company', 'bio']
+  const requiredFields = ['firstName', 'lastName', 'email']
   const filledRequired = requiredFields.filter(field => formData[field].trim() !== '').length
   const progressPercentage = Math.round((filledFields / fields.length) * 100)
 
-  const isFieldValid = (fieldName) => formData[fieldName]?.trim() !== ''
-  const isRequiredField = (fieldName) => requiredFields.includes(fieldName)
+  
 
   const robotoStyle = { fontFamily: "Roboto, sans-serif" }
   const orbitronStyle = { fontFamily: "Orbitron, sans-serif" }
 
+  const handleSubmitConsumerDetails = async () => {
+    if (filledRequired != requiredFields.length) {
+      setRedNotice(true);
+      setNotice("Required fields missing")
+      return;
+    }
+
+    const payload = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      email: formData.email.trim(),
+      website: formData.website?.trim(),
+      phone: formData.phone,
+      bio: formData.bio
+    };
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/consumer/edit-consumer-details`,
+        payload,
+        { withCredentials: true }
+      );
+
+      if (!response.data?.success) {
+        console.error("Update failed:", response.data.message);
+        return;
+      }
+      setRedNotice(false);
+      setNotice("Cosumer details updated successfully");
+      setTimeout(() => {
+
+      }, 2000);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "API Error:",
+          error.response?.data?.message || error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      setTimeout(() => {
+        setRedNotice(true);
+        setNotice("an error occured");
+
+      }, 2000);
+    }
+  };
+
+  async function checkIfAuthorized() {
+    try {
+      const res = await axios.get('http://localhost:5000/api/auth/validate', {
+        withCredentials: true
+      })
+
+      if (!res.data.data) {
+        navigate('/')
+      }
+
+      if (res.data.data?.role != 'consumer') {
+        setTimeout(() => {
+          navigate('/')
+        }, 2000);
+        setRedNotice(true);
+        setNotice("You are not Registered !!");
+      }
+    } catch (error) {
+      console.log(error)
+
+      setTimeout(() => {
+        console.log("Nav")
+        navigate('/')
+      }, 2000);
+      setRedNotice(true);
+      setNotice("You are not Registered !!");
+
+    }
+  }
+
+  useEffect(() => {
+    checkIfAuthorized()
+  }, [])
+
+  const removeNotice = () => {
+    setNotice("")
+    setRedNotice(false)
+  }
+
   return (
     <div style={robotoStyle} className='relative min-h-screen overflow-hidden bg-[#14171d] py-12 px-4'>
       <div className="absolute inset-0 bg-[#12151b]" />
-      
+
+      {notice && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            onClick={removeNotice}
+            className={`
+              px-4 py-2 rounded-lg cursor-pointer
+              backdrop-blur-md shadow-lg transition-all
+              ${redNotice
+                ? "bg-red-500/20 border border-red-400/40 text-red-300"
+                : "bg-[#a78bfa]/20 border border-[#a78bfa]/40 text-[#e9d5ff]"}
+            `}
+          >
+            {notice}
+          </div>
+        </div>
+      )}
+
+
       {/* Background gradients */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.95))]" />
@@ -96,7 +165,7 @@ function RegisterUser() {
               />
             </div>
           </div>
-          
+
           <h1 style={orbitronStyle} className="text-3xl md:text-4xl font-semibold text-white mb-2">
             User Profile
           </h1>
@@ -118,13 +187,13 @@ function RegisterUser() {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm font-medium text-white/70">Profile Completion</span>
-              <span className={`text-sm font-semibold transition-colors ${progressPercentage === 100 ? 'text-green-400' : 'text-[#a78bfa]'}`}>
+              <span className={`text-sm font-semibold transition-colors text-[#a78bfa]`}>
                 {progressPercentage}%
               </span>
             </div>
             <div className="w-full h-2.5 rounded-full bg-white/10 border border-[#a78bfa]/20 overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 rounded-full ${progressPercentage === 100 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-[#a78bfa] to-[#8b5cf6]'}`}
+                className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r from-[#a78bfa] to-[#8b5cf6]`}
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -134,7 +203,7 @@ function RegisterUser() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className='form flex flex-col space-y-3'>
             {/* First Name and Last Name Row */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -143,9 +212,7 @@ function RegisterUser() {
                     <User size={16} className="inline mr-2" />
                     First Name <span className="text-red-400">*</span>
                   </label>
-                  {isFieldValid('firstName') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
+
                 </div>
                 <input
                   type="text"
@@ -160,8 +227,8 @@ function RegisterUser() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    ${errors.firstName ? 'border-red-500/50 focus:border-red-500' : 'border-[#a78bfa]/30 focus:border-[#a78bfa]'}
-                    ${isFieldValid('firstName') && !errors.firstName ? 'border-green-500/50' : ''}
+                    border-[#a78bfa]/30 focus:border-[#a78bfa]
+                    
                   `}
                 />
                 {errors.firstName && (
@@ -175,9 +242,7 @@ function RegisterUser() {
                   <label className="block text-sm font-medium text-white/80">
                     Last Name <span className="text-red-400">*</span>
                   </label>
-                  {isFieldValid('lastName') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
+
                 </div>
                 <input
                   type="text"
@@ -192,8 +257,7 @@ function RegisterUser() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    ${errors.lastName ? 'border-red-500/50 focus:border-red-500' : 'border-[#a78bfa]/30 focus:border-[#a78bfa]'}
-                    ${isFieldValid('lastName') && !errors.lastName ? 'border-green-500/50' : ''}
+                 border-[#a78bfa]/30 focus:border-[#a78bfa]
                   `}
                 />
                 {errors.lastName && (
@@ -212,9 +276,7 @@ function RegisterUser() {
                     <Mail size={16} className="inline mr-2" />
                     Email Address <span className="text-red-400">*</span>
                   </label>
-                  {isFieldValid('email') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
+
                 </div>
                 <input
                   type="email"
@@ -229,8 +291,7 @@ function RegisterUser() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    ${errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-[#a78bfa]/30 focus:border-[#a78bfa]'}
-                    ${isFieldValid('email') && !errors.email ? 'border-green-500/50' : ''}
+                    border-[#a78bfa]/30 focus:border-[#a78bfa]
                   `}
                 />
                 {errors.email && (
@@ -245,9 +306,7 @@ function RegisterUser() {
                     <Phone size={16} className="inline mr-2" />
                     Phone Number
                   </label>
-                  {isFieldValid('phone') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
+
                 </div>
                 <input
                   type="tel"
@@ -273,9 +332,7 @@ function RegisterUser() {
                   <MapPin size={16} className="inline mr-2" />
                   Address
                 </label>
-                {isFieldValid('address') && (
-                  <CheckCircle2 size={16} className="text-green-400" />
-                )}
+
               </div>
               <input
                 type="text"
@@ -293,115 +350,11 @@ function RegisterUser() {
               />
             </div>
 
-            {/* City and Country Row */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-white/80">City</label>
-                  {isFieldValid('city') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
-                </div>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  placeholder="City"
-                  className="
-                    w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#a78bfa]/30
-                    text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
-                    transition-all duration-300
-                  "
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-white/80">Country</label>
-                  {isFieldValid('country') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
-                </div>
-                <input
-                  type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  placeholder="Country"
-                  className="
-                    w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#a78bfa]/30
-                    text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
-                    transition-all duration-300
-                  "
-                />
-              </div>
-            </div>
-
-            {/* Profession and Company Row */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-white/80">
-                    <Briefcase size={16} className="inline mr-2" />
-                    Profession
-                  </label>
-                  {isFieldValid('profession') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
-                </div>
-                <input
-                  type="text"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleChange}
-                  placeholder="Your profession/title"
-                  className="
-                    w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#a78bfa]/30
-                    text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
-                    transition-all duration-300
-                  "
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-white/80">
-                    <Building2 size={16} className="inline mr-2" />
-                    Company
-                  </label>
-                  {isFieldValid('company') && (
-                    <CheckCircle2 size={16} className="text-green-400" />
-                  )}
-                </div>
-                <input
-                  type="text"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="Your company name"
-                  className="
-                    w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#a78bfa]/30
-                    text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
-                    transition-all duration-300
-                  "
-                />
-              </div>
-            </div>
-
             {/* Bio */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-white/80">Bio</label>
-                {isFieldValid('bio') && (
-                  <CheckCircle2 size={16} className="text-green-400" />
-                )}
+
               </div>
               <textarea
                 name="bio"
@@ -423,6 +376,7 @@ function RegisterUser() {
             {/* Submit Button */}
             <button
               type="submit"
+              onClick={handleSubmitConsumerDetails}
               disabled={filledRequired < requiredFields.length}
               className="
                 w-full mt-8 py-3 px-6 rounded-xl
@@ -434,9 +388,9 @@ function RegisterUser() {
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none
               "
             >
-              {submitted ? 'Profile Saved!' : `Save Profile ${filledRequired < requiredFields.length ? `(${requiredFields.length - filledRequired} required)` : ''}`}
+              {submitted ? 'Details Saved!' : 'Save Profile'}
             </button>
-          </form>
+          </div>
 
           {submitted && (
             <div className="mt-4 p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center flex items-center justify-center gap-2">
@@ -449,4 +403,4 @@ function RegisterUser() {
   )
 }
 
-export default RegisterUser
+export default RegisterConsumer
