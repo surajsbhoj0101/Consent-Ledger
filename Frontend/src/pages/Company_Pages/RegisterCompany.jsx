@@ -68,7 +68,7 @@ function RegisterCompany() {
       setRedNotice(false);
       setNotice("Company details updated successfully");
       setTimeout(() => {
-
+        navigate('/company/dashboard')
       }, 2000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -117,8 +117,24 @@ function RegisterCompany() {
     }
   }
 
+  async function checkIfAlreadyRegistered (){
+    try {
+      const res =  await axios.get('http://localhost:5000/api/company/check-registered',{
+        withCredentials: true
+      });
+
+      if(res.data.isRegister){
+        navigate('/company/dashboard');
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     checkIfAuthorized()
+    checkIfAlreadyRegistered()
   }, [])
 
   const removeNotice = () => {

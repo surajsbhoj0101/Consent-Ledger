@@ -15,6 +15,7 @@ import Navbar from "./components/Navbar";
 import Company_Details_Input from "./pages/Company_Pages/RegisterCompany";
 import RegisterCompany from "./pages/Company_Pages/RegisterCompany";
 import RegisterConsumer from "./pages/User_Pages/RegisterConsumer"
+import CompanyDashboard from "./pages/Company_Pages/CompanyDashboard";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <>
-        <Navbar />
+        
         <App />
         <Snowfall snowflakeCount={60} />
       </>
@@ -44,6 +45,15 @@ const router = createBrowserRouter([
       <>
 
         <RegisterConsumer />
+      </>
+    )
+  },
+  {
+    path: "/company/Dashboard",
+    element :(
+      <>
+        <Navbar />
+        <CompanyDashboard />
       </>
     )
   }

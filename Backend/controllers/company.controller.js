@@ -67,4 +67,21 @@ export const editCompanyDetails = async (req, res) => {
     }
 };
 
-export default editCompanyDetails;
+export const checkRegister = async(req, res) =>{
+    try {
+        const { id, role } = req;
+        console.log(id,", Id and Role ," ,role)
+
+        if (role !== "company") {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized access",
+            });
+        }
+        const data = await Company.findOne({userId: id});
+
+        res.status(200).json({isRegister: data.isRegistered});
+    } catch (error) {
+        console.log(error)
+    }
+}

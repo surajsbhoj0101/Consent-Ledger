@@ -6,6 +6,7 @@ import Consumer from "../models/consumer.model.js";
 
 dotenv.config();
 
+//register + login
 export const register = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -142,3 +143,19 @@ export const getAuthData = async (req, res) => {
     });
   }
 };
+
+export const logout = async(req, res) =>{
+  try {
+    res.clearCookie("access_token");
+    res.status(200).json({
+      success:true,
+    })
+  } catch (error) {
+    console.error("Clear Cookie error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    })
+  }
+}

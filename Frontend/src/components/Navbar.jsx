@@ -1,70 +1,143 @@
-import React, { useState, useEffect } from 'react'
-import { useWeb3AuthConnect, useWeb3AuthDisconnect, useWeb3AuthUser } from "@web3auth/modal/react";
+import React, { useState } from "react";
+import { Wallet, LogOut, ChevronDown, LogIn } from "lucide-react";
+import { useNavigate, Link, NavLink } from "react-router-dom";
+import axios from "axios";
+import {
+  useWeb3AuthConnect,
+  useWeb3AuthDisconnect,
+  useWeb3AuthUser,
+} from "@web3auth/modal/react";
 import { useAccount } from "wagmi";
-import { SendTransaction } from "./sendTransaction";
-import { Balance } from "./getBalance";
-import { SwitchChain } from "./switchNetwork";
-
 
 function Navbar() {
-    const { connect, isConnected, connectorName, loading: connectLoading, error: connectError } = useWeb3AuthConnect();
-    // IMP START - Logout
-    const { disconnect, loading: disconnectLoading, error: disconnectError } = useWeb3AuthDisconnect();
-    const { userInfo } = useWeb3AuthUser();
-    const { address } = useAccount();
+  const  navigate  = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
 
-    function uiConsole(...args) {
-        const el = document.querySelector("#console>p");
-        if (el) {
-            el.innerHTML = JSON.stringify(args || {}, null, 2);
-            console.log(...args);
-        }
+  const {
+    connect,
+    isConnected,
+    connectorName,
+    loading: connectLoading,
+    error: connectError,
+  } = useWeb3AuthConnect();
+
+  const {
+    disconnect,
+    loading: disconnectLoading,
+    error: disconnectError,
+  } = useWeb3AuthDisconnect();
+
+  const { userInfo } = useWeb3AuthUser();
+  const { address } = useAccount();
+
+  const handleLogout = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/logout", {
+        withCredentials: true,
+      });
+
+      if (!res.data.success) {
+        console.log("Clearing cookie failed");
+        return;
+      }
+
+      disconnect();
+      navigate("/");
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    const loggedInView = (
-        <div className="grid">
-            <h2>Connected to {connectorName}</h2>
-            <div>{address}</div>
-            <div className="flex-container">
-                <div>
-                    <button onClick={() => uiConsole(userInfo)} className="card">
-                        Get User Info
+  const truncateAddress = (addr) => {
+    return `${addr?.slice(0, 6)}...${addr?.slice(-4)}`;
+  };
+
+  return (
+    <div>
+      <nav className="relative z-20 bg-[#14171d]">
+        <div className="absolute inset-0 backdrop-blur-3xl bg-gradient-to-b from-[#7fa4c4]/5 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+
+        <div className="relative bg-transparent flex items-center justify-between px-6 md:px-8 py-2 max-w-7xl mx-auto">
+          <Link to="/" className="flex items-center gap-3">
+            <span className="hidden md:block text-lg tracking-widest text-white/70 font-semibold">
+              CONSENT LEDGER
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-4">
+            {isConnected ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#7fa4c4]/10 hover:bg-[#7fa4c4]/20 border border-[#7fa4c4]/30 rounded-lg transition-all"
+                >
+                  <span className="w-2 animate-pulse h-2 bg-green-400 rounded-full" />
+                  <span className="text-sm text-[#7fa4c4]">
+                    {truncateAddress(address)}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-[#7fa4c4] transition-transform ${
+                      showDropdown ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {/* Dropdown Menu */}
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#12151b]/95 border border-[#7fa4c4]/40 rounded-lg shadow-xl overflow-hidden z-50 backdrop-blur-md bg-gradient-to-b from-[#14171d]/90 to-[#0f1219]/90">
+                    <div className="px-4 py-3 border-b border-[#7fa4c4]/30 bg-[#7fa4c4]/5">
+                      <p className="text-xs text-white/50 mb-1">Connected as</p>
+                      <p className="text-sm text-white font-mono break-all">
+                        {address}
+                      </p>
+                    </div>
+
+                    <div className="px-4 py-3 border-b border-[#7fa4c4]/30">
+                      <p className="text-xs text-white/50 mb-1">Network</p>
+                      <p className="text-sm text-[#7fa4c4] capitalize">
+                        {connectorName || "Web3Auth"}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleLogout}
+                      disabled={disconnectLoading}
+                      className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      {disconnectLoading ? "Disconnecting..." : "Logout"}
                     </button>
-                </div>
-                <div>
-                    <button onClick={() => disconnect()} className="card">
-                        Log Out
-                    </button>
-                    {disconnectLoading && <div className="loading">Disconnecting...</div>}
-                    {disconnectError && <div className="error">{disconnectError.message}</div>}
-                </div>
-            </div>
-            <SendTransaction />
-            <Balance />
-            <SwitchChain />
-        </div>
-    );
 
-    const unloggedInView = (
-        <div className="grid">
-            <button onClick={() => connect()} className="card">
-                Login
-            </button>
-            {connectLoading && <div className="loading">Connecting...</div>}
-            {connectError && <div className="error">{connectError.message}</div>}
-        </div>
+                    {disconnectError && (
+                      <div className="px-4 py-2 bg-red-500/10 text-red-400 text-xs border-t border-[#7fa4c4]/30">
+                        {disconnectError.message}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => connect()}
+                disabled={connectLoading}
+                className="px-6 py-2 bg-gradient-to-r from-[#7fa4c4] to-[#5a8aac] hover:from-[#8fb4d4] hover:to-[#6a9abc] text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                {connectLoading ? "Connecting..." : "Connect Wallet"}
+              </button>
+            )}
 
-    );
-
-    return (
-        <div>
-            <div className='flex'>
-                <div>
-                    <button onClick={() => disconnect()}>disconnect</button>
-                </div>
-            </div>
+            {connectError && !isConnected && (
+              <div className="text-red-400 text-xs hidden md:block">
+                {connectError.message}
+              </div>
+            )}
+          </div>
         </div>
-    )
+      </nav>
+    </div>
+  );
 }
 
-export default Navbar
+export default Navbar;
