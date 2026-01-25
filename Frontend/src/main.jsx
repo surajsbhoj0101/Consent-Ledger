@@ -11,8 +11,6 @@ import { WagmiProvider } from "@web3auth/modal/react/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import App from "./App";
-import Navbar from "./components/Navbar";
-import Company_Details_Input from "./pages/Company_Pages/RegisterCompany";
 import RegisterCompany from "./pages/Company_Pages/RegisterCompany";
 import RegisterConsumer from "./pages/User_Pages/RegisterConsumer"
 import CompanyDashboard from "./pages/Company_Pages/CompanyDashboard";
@@ -52,7 +50,7 @@ const router = createBrowserRouter([
     path: "/company/Dashboard",
     element :(
       <>
-        <Navbar />
+        
         <CompanyDashboard />
       </>
     )

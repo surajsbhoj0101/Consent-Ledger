@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Wallet, LogOut, ChevronDown, LogIn } from "lucide-react";
+import { Wallet,CircleCheck, LogOut, ChevronDown, LogIn } from "lucide-react";
 import { useNavigate, Link, NavLink } from "react-router-dom";
 import axios from "axios";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@web3auth/modal/react";
 import { useAccount } from "wagmi";
 
-function Navbar() {
+function WalletComponent() {
   const  navigate  = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -49,22 +49,11 @@ function Navbar() {
   };
 
   const truncateAddress = (addr) => {
-    return `${addr?.slice(0, 6)}...${addr?.slice(-4)}`;
+    return `${addr?.slice(0, 4)}...${addr?.slice(-4)}`;
   };
 
   return (
-    <div>
-      <nav className="relative z-20 bg-[#14171d]">
-        <div className="absolute inset-0 backdrop-blur-3xl bg-gradient-to-b from-[#7fa4c4]/5 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
-
-        <div className="relative bg-transparent flex items-center justify-between px-6 md:px-8 py-2 max-w-7xl mx-auto">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="hidden md:block text-lg tracking-widest text-white/70 font-semibold">
-              CONSENT LEDGER
-            </span>
-          </Link>
-
+    <div className="fixed top-5.5 right-4">
           <div className="flex items-center gap-4">
             {isConnected ? (
               <div className="relative">
@@ -72,15 +61,12 @@ function Navbar() {
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2 px-4 py-2 bg-[#7fa4c4]/10 hover:bg-[#7fa4c4]/20 border border-[#7fa4c4]/30 rounded-lg transition-all"
                 >
-                  <span className="w-2 animate-pulse h-2 bg-green-400 rounded-full" />
-                  <span className="text-sm text-[#7fa4c4]">
+                  <Wallet className="text-gray-300"/>
+                  <span className="text-sm text-gray-300">
                     {truncateAddress(address)}
                   </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-[#7fa4c4] transition-transform ${
-                      showDropdown ? "rotate-180" : ""
-                    }`}
-                  />
+                  <CircleCheck 
+                  className="text-green-400 animate-pulse" />
                 </button>
 
                 {/* Dropdown Menu */}
@@ -134,10 +120,10 @@ function Navbar() {
               </div>
             )}
           </div>
-        </div>
-      </nav>
+        
+    
     </div>
   );
 }
 
-export default Navbar;
+export default WalletComponent;
