@@ -1,5 +1,4 @@
 import "./index.css";
-
 import ReactDOM from "react-dom/client";
 import { Web3AuthProvider } from "@web3auth/modal/react";
 import web3AuthContextConfig from "./context/web3AuthContext";
@@ -14,6 +13,7 @@ import App from "./App";
 import RegisterCompany from "./pages/Company_Pages/RegisterCompany";
 import RegisterConsumer from "./pages/User_Pages/RegisterConsumer"
 import CompanyDashboard from "./pages/Company_Pages/CompanyDashboard";
+import ConsentPurposes from "./pages/Company_Pages/ConsentPurposes";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +52,14 @@ const router = createBrowserRouter([
       <>
         
         <CompanyDashboard />
+      </>
+    )
+  },
+  {
+    path: "/company/purposes",
+    element:(
+      <>
+        <ConsentPurposes />
       </>
     )
   }

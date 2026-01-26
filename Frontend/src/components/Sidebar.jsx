@@ -24,7 +24,7 @@ function Sidebar({ role }) {
     },
     {
       name: "purposes",
-      path: "#",
+      path: "/company/purposes",
       icon: <Users />,
     },
     {
