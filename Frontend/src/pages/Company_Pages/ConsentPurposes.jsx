@@ -23,10 +23,106 @@ import "../../index.css";
 function ConsentPurposes() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
+  const [createPurposeOpen, setCreatePurposeOpen] = useState(false);
+ 
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    consentType: "Explicit",
+    duration: "12 months",
+    status: "Active",
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name || !formData.name.trim()) newErrors.name = "Purpose name is required";
+    if (!formData.description || !formData.description.trim()) newErrors.description = "Description is required";
+    if (formData.description && formData.description.trim().length < 10) newErrors.description = "Description must be at least 10 characters";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
+  const handleReset = () => {
+    setFormData({ name: "", description: "", consentType: "Explicit", duration: "12 months", status: "Active" });
+    setErrors({});
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsSubmitting(true);
+    try {
+      const newPurpose = { id: Date.now(), ...formData };
+      setPurposes(prev => [newPurpose, ...prev]);
+      handleReset();
+      setCreatePurposeOpen(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const [sidebarOpen, setSidebarOpen] = useState(
     () => localStorage.getItem("sidebarOpen") !== "false",
   );
   const [purposes, setPurposes] = useState([
+    {
+      id: 1,
+      name: "Marketing Analytics",
+      description: "Track user behavior for marketing purposes",
+      consentType: "Explicit",
+      duration: "12 months",
+      status: "Active",
+    },
+    {
+      id: 2,
+      name: "Personalization",
+      description: "Improve user experience with personalized content",
+      consentType: "Implicit",
+      duration: "6 months",
+      status: "Active",
+    },
+    {
+      id: 3,
+      name: "Third-party Sharing",
+      description: "Share anonymized data with partners",
+      consentType: "Required",
+      duration: "3 months",
+      status: "Inactive",
+    },
+    {
+      id: 4,
+      name: "Marketing Analytics",
+      description: "Track user behavior for marketing purposes",
+      consentType: "Optional",
+      duration: "12 months",
+      status: "Active",
+    },
+    {
+      id: 5,
+      name: "Personalization",
+      description: "Improve user experience with personalized content",
+      consentType: "Implicit",
+      duration: "6 months",
+      status: "Active",
+    },
+    {
+      id: 6,
+      name: "Third-party Sharing",
+      description: "Share anonymized data with partners",
+      consentType: "Explicit",
+      duration: "3 months",
+      status: "Inactive",
+    },
     {
       id: 1,
       name: "Marketing Analytics",
@@ -105,15 +201,6 @@ function ConsentPurposes() {
     getUser();
   }, [role]);
 
-  useEffect(() => {
-    const handleSidebarToggle = () => {
-      setSidebarOpen(localStorage.getItem("sidebarOpen") !== "false");
-    };
-    window.addEventListener("sidebarToggle", handleSidebarToggle);
-    return () =>
-      window.removeEventListener("sidebarToggle", handleSidebarToggle);
-  }, []);
-
   return (
     <div
       style={robotoStyle}
@@ -165,6 +252,7 @@ function ConsentPurposes() {
                   </p>
                 </div>
                 <button
+                  onClick={() => setCreatePurposeOpen((prev) => !prev)}
                   className="
                     group inline-flex items-center gap-2
                     rounded-lg px-5 h-11
@@ -188,12 +276,24 @@ function ConsentPurposes() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Purpose Name</th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Description</th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Consent Type</th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Duration</th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Status</th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">Actions</th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Purpose Name
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Description
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Consent Type
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Duration
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[rgba(127,164,196,0.1)]">
@@ -210,11 +310,13 @@ function ConsentPurposes() {
                             {purpose.description}
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                              purpose.consentType === "Explicit"
-                                ? "bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-300"
-                                : "bg-gradient-to-r from-yellow-500/20 to-yellow-600/10 text-yellow-300"
-                            }`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                purpose.consentType === "Explicit"
+                                  ? "bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-300"
+                                  : "bg-gradient-to-r from-yellow-500/20 to-yellow-600/10 text-yellow-300"
+                              }`}
+                            >
                               {purpose.consentType}
                             </span>
                           </td>
@@ -222,11 +324,13 @@ function ConsentPurposes() {
                             {purpose.duration}
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                              purpose.status === "Active"
-                                ? "bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-300"
-                                : "bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-300"
-                            }`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                purpose.status === "Active"
+                                  ? "bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-300"
+                                  : "bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-300"
+                              }`}
+                            >
                               {purpose.status}
                             </span>
                           </td>
@@ -247,11 +351,16 @@ function ConsentPurposes() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="px-6 py-12 text-center">
+                        <td colSpan="6" className="px-6 py-36 mb-2 text-center">
                           <div className="flex flex-col items-center gap-2">
                             <AlertCircle size={24} className="text-[#7fa4c4]" />
-                            <p className="text-[#b0c5db]">No purposes created yet</p>
-                            <p className="text-xs text-[#9db5d6]">Click "Create Purpose" to add your first consent purpose</p>
+                            <p className="text-[#b0c5db]">
+                              No purposes created yet
+                            </p>
+                            <p className="text-xs text-[#9db5d6]">
+                              Click "Create Purpose" to add your first consent
+                              purpose
+                            </p>
                           </div>
                         </td>
                       </tr>
@@ -262,6 +371,115 @@ function ConsentPurposes() {
             </div>
           </div>
         </div>
+
+        {/* Create purpose Form */}
+        {createPurposeOpen && (
+          <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-sm p-4 md:p-6 pt-20">
+            {/* Small Panel */}
+            <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#14171d] shadow-2xl animate-in slide-in-from-right-6 fade-in duration-200">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+                <h3 className="text-sm font-semibold text-white tracking-tight">
+                  Create Purpose
+                </h3>
+
+                <button
+                  onClick={() => { setCreatePurposeOpen(false); handleReset(); }}
+                  className="text-[#9db5d6] hover:text-white transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Purpose Name <span className="text-red-400">*</span></label>
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Marketing Analytics"
+                    className={`w-full rounded-lg bg-[#0f1217] border ${errors.name ? 'border-red-500' : 'border-white/10'} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all`}
+                  />
+                  {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Description <span className="text-red-400">*</span></label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    placeholder="Describe what data will be collected and how it will be used..."
+                    
+                    className={`w-full rounded-lg bg-[#0f1217] border ${errors.description ? 'border-red-500' : 'border-white/10'} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all `}
+                  />
+                  {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Consent Type</label>
+                    <select
+                      name="consentType"
+                      value={formData.consentType}
+                      onChange={handleInputChange}
+                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                    >
+                      <option value="Required">Required</option>
+                      <option value="Optional">Optional</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Duration</label>
+                    <select
+                      name="duration"
+                      value={formData.duration}
+                      onChange={handleInputChange}
+                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                    >
+                      <option value="1 month">1 month</option>
+                      <option value="3 months">3 months</option>
+                      <option value="6 months">6 months</option>
+                      <option value="12 months">12 months</option>
+                      <option value="Indefinite">Indefinite</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Status</label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-2 px-5 py-3 border-t border-white/10">
+                <button
+                  onClick={() => { setCreatePurposeOpen(false); handleReset(); }}
+                  className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 text-sm rounded-lg bg-[#7fa4c4] hover:bg-[#6b8fb0] text-white font-medium disabled:opacity-60 transition-all"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
