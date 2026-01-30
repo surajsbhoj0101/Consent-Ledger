@@ -9,6 +9,7 @@ import {
   BookOpenText,
   Settings,
   History,
+  Database
 } from "lucide-react";
 
 function Sidebar({ role }) {
@@ -23,13 +24,19 @@ function Sidebar({ role }) {
       icon: <Grid2x2 />,
     },
     {
+      name: "Manage Users",
+      path: "/company/users",
+      icon: <Users />
+    }
+    ,
+    {
       name: "purposes",
       path: "/company/purposes",
-      icon: <Users />,
+      icon: <Database />,
     },
     {
       name: "Consent Request",
-      path: "#",
+      path: "/company/consent-request",
       icon: <FilePenLine />,
     },
     {

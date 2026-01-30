@@ -2,6 +2,7 @@ import React, { act, useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Wallet from "../../components/WalletComponent";
+import UseSearchFilter from "../../components/useSearchFilter.jsx";
 import {
   TrendingDown,
   Users,
@@ -24,7 +25,12 @@ function ConsentPurposes() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
   const [createPurposeOpen, setCreatePurposeOpen] = useState(false);
- 
+  const [searchData, setSearchData] = useState({
+    search: "",
+    sortBy: "",
+    sortOrder: "",
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -37,21 +43,30 @@ function ConsentPurposes() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name || !formData.name.trim()) newErrors.name = "Purpose name is required";
-    if (!formData.description || !formData.description.trim()) newErrors.description = "Description is required";
-    if (formData.description && formData.description.trim().length < 10) newErrors.description = "Description must be at least 10 characters";
+    if (!formData.name || !formData.name.trim())
+      newErrors.name = "Purpose name is required";
+    if (!formData.description || !formData.description.trim())
+      newErrors.description = "Description is required";
+    if (formData.description && formData.description.trim().length < 10)
+      newErrors.description = "Description must be at least 10 characters";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleReset = () => {
-    setFormData({ name: "", description: "", consentType: "Explicit", duration: "12 months", status: "Active" });
+    setFormData({
+      name: "",
+      description: "",
+      consentType: "Explicit",
+      duration: "12 months",
+      status: "Active",
+    });
     setErrors({});
   };
 
@@ -61,7 +76,7 @@ function ConsentPurposes() {
     setIsSubmitting(true);
     try {
       const newPurpose = { id: Date.now(), ...formData };
-      setPurposes(prev => [newPurpose, ...prev]);
+      setPurposes((prev) => [newPurpose, ...prev]);
       handleReset();
       setCreatePurposeOpen(false);
     } catch (err) {
@@ -74,6 +89,7 @@ function ConsentPurposes() {
   const [sidebarOpen, setSidebarOpen] = useState(
     () => localStorage.getItem("sidebarOpen") !== "false",
   );
+
   const [purposes, setPurposes] = useState([
     {
       id: 1,
@@ -173,6 +189,10 @@ function ConsentPurposes() {
     },
   ]);
 
+  useEffect(() => {
+    console.log(searchData);
+  }, [searchData]);
+
   const getUser = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/auth/validate", {
@@ -197,8 +217,27 @@ function ConsentPurposes() {
     }
   };
 
+  function filterData(searchData) {
+    let result = [...purposes];
+    console.log(searchData)
+    if (searchData.search?.trim()) {
+      const q = searchData.search.toLowerCase();
+
+      result = result.filter((pu) => pu.name.toLowerCase().includes(q));
+    }
+
+   
+    if (searchData.sort === "name") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (searchData.sort === "time") {
+      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    setPurposes(result);
+  }
+
   useEffect(() => {
-    getUser();
+    filterData(searchData);
   }, [role]);
 
   return (
@@ -240,7 +279,7 @@ function ConsentPurposes() {
             </div>
 
             {/* table of purposes */}
-            <div className="p-6 mt-6 mx-4 rounded-xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] backdrop-blur-md hover:border-[rgba(127,164,196,0.3)] transition-all duration-300 shadow-lg">
+            <div className="p-4 mt-6 mx-4 rounded-xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] backdrop-blur-md hover:border-[rgba(127,164,196,0.3)] transition-all duration-300 shadow-lg">
               {/* heading and button */}
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -271,8 +310,13 @@ function ConsentPurposes() {
                 </button>
               </div>
 
+              {/* Search filter component */}
+              <div>
+                <UseSearchFilter value={searchData} onChange={setSearchData} />
+              </div>
+
               {/* table based section */}
-              <div className="rounded-lg overflow-hidden border border-[rgba(127,164,196,0.1)]">
+              <div className="rounded-lg mt-3 overflow-hidden border border-[rgba(127,164,196,0.1)]">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
@@ -376,7 +420,7 @@ function ConsentPurposes() {
         {createPurposeOpen && (
           <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-sm p-4 md:p-6 pt-20">
             {/* Small Panel */}
-            <div className="w-full max-w-2xl rounded-xl border border-white/10 bg-[#14171d] shadow-2xl animate-in slide-in-from-right-6 fade-in duration-200">
+            <div className="w-full max-w-2xl rounded-xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] border-white/10 shadow-2xl animate-in slide-in-from-right-6 fade-in duration-200">
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                 <h3 className="text-sm font-semibold text-white tracking-tight">
@@ -384,7 +428,10 @@ function ConsentPurposes() {
                 </h3>
 
                 <button
-                  onClick={() => { setCreatePurposeOpen(false); handleReset(); }}
+                  onClick={() => {
+                    setCreatePurposeOpen(false);
+                    handleReset();
+                  }}
                   className="text-[#9db5d6] hover:text-white transition"
                 >
                   ✕
@@ -394,50 +441,63 @@ function ConsentPurposes() {
               {/* Body */}
               <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Purpose Name <span className="text-red-400">*</span></label>
+                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    Purpose Name <span className="text-red-400">*</span>
+                  </label>
                   <input
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g., Marketing Analytics"
-                    className={`w-full rounded-lg bg-[#0f1217] border ${errors.name ? 'border-red-500' : 'border-white/10'} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all`}
+                    className={`w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border ${errors.name ? "border-red-500" : "border-white/10"} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all`}
                   />
-                  {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-xs text-red-400 mt-1">{errors.name}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Description <span className="text-red-400">*</span></label>
+                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    Description <span className="text-red-400">*</span>
+                  </label>
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Describe what data will be collected and how it will be used..."
-                    
-                    className={`w-full rounded-lg bg-[#0f1217] border ${errors.description ? 'border-red-500' : 'border-white/10'} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all `}
+                    className={`w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border ${errors.description ? "border-red-500" : "border-white/10"} px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all `}
                   />
-                  {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
+                  {errors.description && (
+                    <p className="text-xs text-red-400 mt-1">
+                      {errors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Consent Type</label>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                      Consent Type
+                    </label>
                     <select
                       name="consentType"
                       value={formData.consentType}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                      className="w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
                     >
                       <option value="Required">Required</option>
                       <option value="Optional">Optional</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Duration</label>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                      Duration
+                    </label>
                     <select
                       name="duration"
                       value={formData.duration}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                      className="w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
                     >
                       <option value="1 month">1 month</option>
                       <option value="3 months">3 months</option>
@@ -447,12 +507,14 @@ function ConsentPurposes() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">Status</label>
+                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                      Status
+                    </label>
                     <select
                       name="status"
                       value={formData.status}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-[#0f1217] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+                      className="w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
@@ -464,19 +526,24 @@ function ConsentPurposes() {
               {/* Footer */}
               <div className="flex justify-end gap-2 px-5 py-3 border-t border-white/10">
                 <button
-                  onClick={() => { setCreatePurposeOpen(false); handleReset(); }}
+                  onClick={() => {
+                    setCreatePurposeOpen(false);
+                    handleReset();
+                  }}
                   className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                   className="px-4 py-2 text-sm rounded-lg bg-[#7fa4c4] hover:bg-[#6b8fb0] text-white font-medium disabled:opacity-60 transition-all"
                 >
-                  {isSubmitting ? 'Creating...' : 'Create'}
+                  {isSubmitting ? "Creating..." : "Create"}
                 </button>
               </div>
+
+              
             </div>
           </div>
         )}
