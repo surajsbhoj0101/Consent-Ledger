@@ -21,10 +21,16 @@ import {
   UserPlus,
 } from "lucide-react";
 import "../../index.css";
+import NoticeBar from "../../components/NoticeBar";
 
 function ManageUsers() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
+
+  //notice fields
+  const [notice, setNotice] = useState("");
+  const [redNotice, setRedNotice] = useState(false);
+
   const [addUserOpen, setAddUserOpen] = useState(false);
   const [addSingleUserOpen, setAddSingleUserOpen] = useState(false);
   const [addMultipleUserOpen, setAddMultipleUserOpen] = useState(false);
@@ -33,11 +39,89 @@ function ManageUsers() {
     sortBy: "",
     sortOrder: "",
   });
+  const [userData, setUserData] = useState({
+    companyUserId: "",
+    name: "",
+    email: "",
+    role: "",
+  });
+
+  const [users, setUsers] = useState([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(
     () => localStorage.getItem("sidebarOpen") !== "false",
   );
+
+  const addSingleUser = async () => {
+    if (
+      !userData.email ||
+      !userData.companyUserId ||
+      !userData.name ||
+      !userData.role
+    ) {
+      setRedNotice(true);
+      setNotice("Provide all the required details");
+      return;
+    }
+
+    const payload = {
+      id: userData.companyUserId.trim(),
+      name: userData.name.trim(),
+      email: userData.email.trim(),
+      role: userData.role.trim(),
+    };
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/company/add-single-user",
+        { payload },
+        { withCredentials: true },
+      );
+
+      if (res.data.success) {
+        setRedNotice(false);
+        setNotice("User added successfully");
+
+        const payload = {
+          id: u?.externalUserId,
+          name: u?.name,
+          email: u?.email,
+          role: u?.role,
+          status: u?.status,
+        };
+
+        setUsers((prev) => [...prev, payload]); 
+        return;
+      }
+
+      setRedNotice(true);
+
+      setNotice(res.data.message || "Something went wrong");
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Server error";
+
+      setRedNotice(true);
+
+      if (status === 409) {
+        setNotice("User already exists");
+      } else if (status === 403) {
+        setNotice("Unauthorized access");
+      } else {
+        setNotice(message);
+      }
+    } finally {
+      setUserData(() => ({
+        email: "",
+        companyUserId: "",
+        name: "",
+        role: "",
+      }));
+      setAddUserOpen(false);
+      setAddSingleUserOpen(false);
+    }
+  };
 
   const getUser = async () => {
     try {
@@ -67,40 +151,43 @@ function ManageUsers() {
     getUser();
   }, [role]);
 
-  const users = [
-    {
-      id: "EMP-001",
-      name: "Rahul Sharma",
-      email: "rahul@company.com",
-      role: "Admin",
-      status: "Active",
-      joinedAt: "2024-10-12",
-    },
-    {
-      id: "EMP-002",
-      name: "Ananya Verma",
-      email: "ananya@company.com",
-      role: "User",
-      status: "Invited",
-      joinedAt: "—",
-    },
-    {
-      id: "EMP-003",
-      name: "Amit Singh",
-      email: "amit@company.com",
-      role: "Viewer",
-      status: "Inactive",
-      joinedAt: "2024-06-01",
-    },
-    {
-      id: "EMP-004",
-      name: "Neha Gupta",
-      email: "neha@company.com",
-      role: "User",
-      status: "Active",
-      joinedAt: "2024-08-19",
-    },
-  ];
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/company/fetch-users",
+        { withCredentials: true },
+      );
+
+      if (!res.data.success) {
+        setRedNotice(true);
+        setNotice(res.data.message || "Failed to fetch users");
+        return;
+      }
+
+      const usr = res.data.users;
+
+      const payload = usr.map((u) => ({
+        id: u?.externalUserId,
+        name: u?.name,
+        email: u?.email,
+        role: u?.role,
+        status: u?.status,
+      }));
+
+      setUsers(payload);
+    } catch (error) {
+      console.error("fetchUsers error:", error);
+
+      setRedNotice(true);
+      setNotice(
+        error?.response?.data?.message || "Server error while fetching users",
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   return (
     <div
@@ -108,7 +195,7 @@ function ManageUsers() {
       className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
     >
       <div className="absolute inset-0 bg-[#12151b]" />
-
+      <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       {/* large muted blobs */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
 
@@ -175,11 +262,15 @@ function ManageUsers() {
                 <UseSearchFilter value={searchData} onChange={setSearchData} />
               </div>
               <div className="rounded-lg mt-3 overflow-hidden border border-[rgba(127,164,196,0.1)]">
-                <table className="w-full text-sm">
+                <table className="w-full   text-sm table-fixed">
+                  {/* Header */}
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
                       <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
                         User
+                      </th>
+                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                        ID
                       </th>
                       <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
                         Email
@@ -190,15 +281,14 @@ function ManageUsers() {
                       <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
-                        Joined
-                      </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+
+                      <th className="px-6 py-4 text-center font-semibold text-[#7fa4c4]">
                         Actions
                       </th>
                     </tr>
                   </thead>
 
+                  {/* Body */}
                   <tbody className="divide-y divide-[rgba(127,164,196,0.1)]">
                     {users.length > 0 ? (
                       users.map((user) => (
@@ -208,26 +298,32 @@ function ManageUsers() {
                         >
                           {/* User */}
                           <td className="px-6 py-4">
-                            <div className="flex flex-col">
-                              <span className="text-white font-medium group-hover:text-[#7fa4c4] transition-colors">
-                                {user.name}
-                              </span>
-                              <span className="text-xs text-[#9db5d6]">
-                                {user.id}
-                              </span>
-                            </div>
+                            <span className="block text-white font-medium group-hover:text-[#7fa4c4] transition-colors truncate">
+                              {user.name}
+                            </span>
+                          </td>
+
+                          {/* ID */}
+                          <td
+                            className="px-6 py-4 text-xs text-[#9db5d6] font-mono truncate cursor-pointer"
+                            title="Click to copy"
+                            onClick={() =>
+                              navigator.clipboard.writeText(user.id)
+                            }
+                          >
+                            {user.id}
                           </td>
 
                           {/* Email */}
-                          <td className="px-6 py-4 text-[#b0c5db] text-xs">
+                          <td className="px-6 py-4 text-[#b0c5db] text-xs truncate">
                             {user.email}
                           </td>
 
                           {/* Role */}
                           <td className="px-6 py-4">
                             <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                                user.role === "Admin"
+                              className={`inline-flex items-center justify-center min-w-[72px] px-3 py-1 rounded-full text-xs font-semibold ${
+                                user.role === "admin"
                                   ? "bg-purple-500/20 text-purple-300"
                                   : user.role === "Viewer"
                                     ? "bg-sky-500/20 text-sky-300"
@@ -241,7 +337,7 @@ function ManageUsers() {
                           {/* Status */}
                           <td className="px-6 py-4">
                             <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`inline-flex items-center justify-center min-w-[72px] px-3 py-1 rounded-full text-xs font-semibold ${
                                 user.status === "Active"
                                   ? "bg-green-500/20 text-green-300"
                                   : user.status === "Invited"
@@ -253,14 +349,9 @@ function ManageUsers() {
                             </span>
                           </td>
 
-                          {/* Joined */}
-                          <td className="px-6 py-4 text-[#b0c5db] text-xs">
-                            {user.joinedAt}
-                          </td>
-
                           {/* Actions */}
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]">
                                 <Eye size={16} />
                               </button>
@@ -276,7 +367,7 @@ function ManageUsers() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="px-6 py-36 text-center">
+                        <td colSpan={7} className="px-6 py-36 text-center">
                           <div className="flex flex-col items-center gap-2">
                             <AlertCircle size={24} className="text-[#7fa4c4]" />
                             <p className="text-[#b0c5db]">No users added yet</p>
@@ -417,7 +508,7 @@ function ManageUsers() {
                 </button>
               </div>
               {/* Body */}
-              <form className="px-5 py-4 space-y-4">
+              <div className="px-5 py-4 space-y-4">
                 {/* Company User ID */}
                 <div>
                   <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
@@ -425,6 +516,13 @@ function ManageUsers() {
                   </label>
                   <input
                     name="companyUserId"
+                    value={userData.companyUserId}
+                    onChange={(e) =>
+                      setUserData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., EMP-1023"
                     className="
                     w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -445,6 +543,12 @@ function ManageUsers() {
                   </label>
                   <input
                     name="name"
+                    onChange={(e) =>
+                      setUserData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., Rahul Sharma"
                     className="
                     w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -463,6 +567,13 @@ function ManageUsers() {
                   <input
                     type="email"
                     name="email"
+                    value={userData.email}
+                    onChange={(e) =>
+                      setUserData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., user@company.com"
                     className="
                       w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -476,47 +587,30 @@ function ManageUsers() {
                   </p>
                 </div>
 
-                {/* Role / Status Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
-                      Role
-                    </label>
-                    <select
-                      name="role"
-                      className="
-                        w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                        border border-white/10 px-3 py-2 text-sm text-white
-                        focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                        transition-all
-                      "
-                    >
-                      <option value="User">User</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Viewer">Viewer</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      className="
+                <div>
+                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    Role <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="role"
+                    value={userData.role}
+                    onChange={(e) =>
+                      setUserData((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., viewer, user"
+                    className="
                       w-full rounded-lg bg-[rgba(15,23,42,0.6)]
                       border border-white/10 px-3 py-2 text-sm text-white
                       focus:outline-none focus:ring-2 focus:ring-blue-500/40
                       transition-all
                     "
-                    >
-                      <option value="Invited">Invited</option>
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
+                  />
                 </div>
-              </form>
+              </div>
 
               {/* Footer */}
               <div className="flex justify-end gap-2 px-5 py-3 border-t border-white/10">
@@ -529,6 +623,7 @@ function ManageUsers() {
                   Cancel
                 </button>
                 <button
+                  onClick={addSingleUser}
                   className="
                     px-4 py-2 text-sm rounded-lg
                     bg-[#7fa4c4] hover:bg-[#6b8fb0]
@@ -547,11 +642,11 @@ function ManageUsers() {
             {/* Small Panel */}
             <div
               className="w-full max-w-2xl rounded-xl border border-[rgba(127,164,196,0.15)]
-      bg-gradient-to-br from-[rgba(30,41,59,0.5)]
-      via-[rgba(20,30,48,0.3)]
-      to-[rgba(15,23,42,0.2)]
-      border-white/10 shadow-2xl
-      animate-in slide-in-from-right-6 fade-in duration-200"
+                bg-gradient-to-br from-[rgba(30,41,59,0.5)]
+                via-[rgba(20,30,48,0.3)]
+                to-[rgba(15,23,42,0.2)]
+                border-white/10 shadow-2xl
+                animate-in slide-in-from-right-6 fade-in duration-200"
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -585,13 +680,13 @@ function ManageUsers() {
 
                   <div
                     className="
-              flex flex-col items-center justify-center gap-2
-              w-full rounded-lg border border-dashed border-white/20
-              bg-[rgba(15,23,42,0.5)]
-              px-4 py-6 text-center
-              hover:border-[rgba(127,164,196,0.4)]
-              transition
-            "
+                    flex flex-col items-center justify-center gap-2
+                    w-full rounded-lg border border-dashed border-white/20
+                    bg-[rgba(15,23,42,0.5)]
+                    px-4 py-6 text-center
+                    hover:border-[rgba(127,164,196,0.4)]
+                    transition
+                  "
                   >
                     <p className="text-sm text-slate-300">
                       Drag & drop CSV file here
@@ -603,11 +698,11 @@ function ManageUsers() {
                     <button
                       type="button"
                       className="
-                mt-2 px-3 py-1.5 text-xs rounded-md
-                bg-[rgba(127,164,196,0.2)]
-                text-white hover:bg-[rgba(127,164,196,0.3)]
-                transition
-              "
+                        mt-2 px-3 py-1.5 text-xs rounded-md
+                        bg-[rgba(127,164,196,0.2)]
+                        text-white hover:bg-[rgba(127,164,196,0.3)]
+                        transition
+                      "
                     >
                       Browse File
                     </button>
@@ -627,10 +722,10 @@ function ManageUsers() {
 
                   <div
                     className="
-              rounded-lg bg-[rgba(15,23,42,0.6)]
-              border border-white/10 p-3 text-xs
-              text-slate-300 font-mono
-            "
+                      rounded-lg bg-[rgba(15,23,42,0.6)]
+                      border border-white/10 p-3 text-xs
+                      text-slate-300 font-mono
+                    "
                   >
                     companyUserId, name, email, role
                   </div>
@@ -639,44 +734,6 @@ function ManageUsers() {
                     Role is optional. Defaults to{" "}
                     <span className="text-slate-300">User</span>.
                   </p>
-                </div>
-
-                {/* Defaults */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
-                      Default Role
-                    </label>
-                    <select
-                      className="
-                w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                border border-white/10 px-3 py-2 text-sm text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                transition-all
-              "
-                    >
-                      <option>User</option>
-                      <option>Admin</option>
-                      <option>Viewer</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
-                      Invitation Status
-                    </label>
-                    <select
-                      className="
-                w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                border border-white/10 px-3 py-2 text-sm text-white
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                transition-all
-              "
-                    >
-                      <option>Invited</option>
-                      <option>Active</option>
-                    </select>
-                  </div>
                 </div>
               </div>
 

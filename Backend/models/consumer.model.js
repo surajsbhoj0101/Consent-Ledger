@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const consumerSchema = new mongoose.Schema(
-  {
+  { 
     userId: {
       type: String,
       ref: "User",
