@@ -98,7 +98,7 @@ function Sidebar({ role }) {
   return (
     <div
       style={robotoStyle}
-      className={`relative h-screen bg-gradient-to-b from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.3)] backdrop-blur-md border-r border-[rgba(127,164,196,0.15)] text-white transition-all duration-300 overflow-hidden ${isOpen ? "w-64" : "w-20"}`}
+      className={`relative h-screen bg-gradient-to-b  from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.3)] backdrop-blur-md border-r border-[rgba(127,164,196,0.15)] text-white transition-all duration-300 overflow-hidden ${isOpen?"w-ful" : "w-20"} md:${isOpen ? "w-64" : "w-20"}`}
     >
       {/* Glowing accent line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30" />

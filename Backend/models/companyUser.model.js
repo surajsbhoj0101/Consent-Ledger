@@ -26,7 +26,8 @@ const companyUserSchema = new mongoose.Schema(
     //id of user in company db
     externalUserId: {
       type: String,
-      required: true
+      required: true,
+      unique: true
     },
     
     name: {

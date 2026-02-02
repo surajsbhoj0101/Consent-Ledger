@@ -1,44 +1,57 @@
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Wallet from "../../components/WalletComponent";
 import UseSearchFilter from "../../components/useSearchFilter";
 import {
-  TrendingDown,
   Users,
-  FileCheck,
   AlertCircle,
   X,
-  BarChart3,
-  Clock,
-  Activity,
-  CirclePlus,
-  NotepadText,
-  Plus,
   Edit2,
   Trash2,
   Eye,
   UserPlus,
+  Plus,
+  UploadCloud,
+  FileSpreadsheet,
 } from "lucide-react";
 import "../../index.css";
 import NoticeBar from "../../components/NoticeBar";
+import Loading from "../../components/loadingComponent";
 
 function ManageUsers() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
 
-  //notice fields
+  // Notice fields
   const [notice, setNotice] = useState("");
   const [redNotice, setRedNotice] = useState(false);
 
+  //loading modal fields
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
+  // Modal States
   const [addUserOpen, setAddUserOpen] = useState(false);
   const [addSingleUserOpen, setAddSingleUserOpen] = useState(false);
   const [addMultipleUserOpen, setAddMultipleUserOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+
+  const fileInputRef = useRef(null);
+  const [file, setFile] = useState();
+  const [error, setError] = useState("");
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
   const [searchData, setSearchData] = useState({
     search: "",
     sortBy: "",
     sortOrder: "",
   });
+
   const [userData, setUserData] = useState({
     companyUserId: "",
     name: "",
@@ -48,10 +61,34 @@ function ManageUsers() {
 
   const [users, setUsers] = useState([]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(
-    () => localStorage.getItem("sidebarOpen") !== "false",
-  );
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.name.toLowerCase().endsWith(".csv")) {
+      setRedNotice(true);
+      setNotice("Only CSV allowed");
+      e.target.value = "";
+      return;
+    }
+
+    setRedNotice(false);
+    setNotice("");
+    setFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const addSingleUser = async () => {
     if (
@@ -73,6 +110,8 @@ function ManageUsers() {
     };
 
     try {
+      setIsLoading(true);
+      setLoadingMessage("adding User");
       const res = await axios.post(
         "http://localhost:5000/api/company/add-single-user",
         { payload },
@@ -82,21 +121,19 @@ function ManageUsers() {
       if (res.data.success) {
         setRedNotice(false);
         setNotice("User added successfully");
-
-        const payload = {
+        const u = res.data.user;
+        const newPayload = {
           id: u?.externalUserId,
           name: u?.name,
           email: u?.email,
           role: u?.role,
           status: u?.status,
         };
-
-        setUsers((prev) => [...prev, payload]); 
+        setUsers((prev) => [...prev, newPayload]);
         return;
       }
 
       setRedNotice(true);
-
       setNotice(res.data.message || "Something went wrong");
     } catch (error) {
       const status = error?.response?.status;
@@ -112,14 +149,16 @@ function ManageUsers() {
         setNotice(message);
       }
     } finally {
-      setUserData(() => ({
+      setUserData({
         email: "",
         companyUserId: "",
         name: "",
         role: "",
-      }));
+      });
       setAddUserOpen(false);
       setAddSingleUserOpen(false);
+      setIsLoading(false);
+      setLoadingMessage("")
     }
   };
 
@@ -135,13 +174,11 @@ function ManageUsers() {
       }
 
       const role = res.data?.data?.role;
-
       if (role === "consumer" || role === "company") {
         setRole(role);
       } else {
         setRole(null);
       }
-      console.log(role);
     } catch (err) {
       setRole(null);
     }
@@ -149,7 +186,7 @@ function ManageUsers() {
 
   useEffect(() => {
     getUser();
-  }, [role]);
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -165,7 +202,6 @@ function ManageUsers() {
       }
 
       const usr = res.data.users;
-
       const payload = usr.map((u) => ({
         id: u?.externalUserId,
         name: u?.name,
@@ -177,7 +213,6 @@ function ManageUsers() {
       setUsers(payload);
     } catch (error) {
       console.error("fetchUsers error:", error);
-
       setRedNotice(true);
       setNotice(
         error?.response?.data?.message || "Server error while fetching users",
@@ -189,6 +224,163 @@ function ManageUsers() {
     fetchUsers();
   }, []);
 
+  const handleRemoveUser = async (user) => {
+    if (!user) {
+      setRedNotice(true);
+      setNotice("This user cannot be deleted");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      setLoadingMessage("Removing User");
+      const res = await axios.delete(
+        "http://localhost:5000/api/company/remove-user",
+        {
+          data: { user },
+          withCredentials: true,
+        },
+      );
+
+      if (res.data.success) {
+        setRedNotice(false);
+        setNotice("User Removed successfully");
+        setUsers((prev) => prev.filter((item) => item.id !== user.id));
+        return;
+      }
+
+      setRedNotice(true);
+      setNotice(res.data.message || "Something went wrong");
+    } catch (error) {
+      setRedNotice(true);
+      setNotice(
+        error?.response?.data?.message || "Server error while removing user",
+      );
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("")
+    }
+  };
+
+  const handleEditUser = (user) => {
+    if (!user) return;
+
+    setUserData({
+      companyUserId: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+
+    setEditingUserId(user.id);
+    setIsEditMode(true);
+    setAddSingleUserOpen(true);
+  };
+
+  const updateUser = async () => {
+    if (!userData.name || !userData.email || !userData.role) {
+      setRedNotice(true);
+      setNotice("Provide all required details");
+      return;
+    }
+
+    const payload = {
+      id: editingUserId,
+      name: userData.name.trim(),
+      email: userData.email.trim(),
+      role: userData.role.trim(),
+    };
+
+    try {
+      setIsLoading(true);
+      setLoadingMessage("Removing User");
+
+      const res = await axios.put(
+        "http://localhost:5000/api/company/update-user",
+        { payload },
+        { withCredentials: true },
+      );
+
+      if (res.data.success) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === editingUserId ? { ...u, ...payload } : u)),
+        );
+
+        setNotice("User updated successfully");
+        setRedNotice(false);
+        setAddSingleUserOpen(false);
+        setIsEditMode(false);
+        setEditingUserId(null);
+      }
+    } catch (err) {
+      setRedNotice(true);
+      setNotice("Failed to update user");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("")
+    }
+  };
+
+  const handleUploadToCloud = async () => {
+    if (!file) {
+      setRedNotice(true);
+      setNotice("Please select a file before proceeding");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsLoading(true);
+      setLoadingMessage("Uploading users...");
+
+      const res = await axios.post(
+        "http://localhost:5000/api/company/add-multiple-users",
+        formData,
+        {
+          withCredentials: true,
+        },
+      );
+
+      if (res.data?.success) {
+        setRedNotice(false);
+        setNotice(res.data.message || "Users added successfully");
+
+        const newUsers = res.data.users.map((u) => ({
+          id: u.externalUserId,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          status:u.status
+        }));
+
+        setUsers((prev) => [...prev, ...newUsers]);
+        setFile(null);
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.message || error.message || "Upload failed";
+
+      setRedNotice(true);
+      setNotice(message);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
+    }
+  };
+
+  const closeModals = () => {
+    setAddSingleUserOpen(false);
+    setIsEditMode(false);
+    setEditingUserId(null);
+    setUserData({
+      email: "",
+      companyUserId: "",
+      name: "",
+      role: "",
+    });
+  };
+
   return (
     <div
       style={robotoStyle}
@@ -196,6 +388,7 @@ function ManageUsers() {
     >
       <div className="absolute inset-0 bg-[#12151b]" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
+      <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
       {/* large muted blobs */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
 
@@ -204,14 +397,12 @@ function ManageUsers() {
       <div className="relative flex h-screen">
         <Sidebar role={role} />
 
-        <div className="flex-1 flex flex-col  overflow-hidden">
-          <div className="flex-1 overflow-y-auto  custom-scrollbar">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             {/* Header */}
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
-
               <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
-
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
@@ -221,8 +412,7 @@ function ManageUsers() {
                     Add, view, or remove users linked to your organization
                   </p>
                 </div>
-
-                <div className=" z-50 md:block">
+                <div className="z-50 md:block">
                   <Wallet />
                 </div>
               </div>
@@ -261,8 +451,8 @@ function ManageUsers() {
               <div>
                 <UseSearchFilter value={searchData} onChange={setSearchData} />
               </div>
-              <div className="rounded-lg mt-3 overflow-hidden border border-[rgba(127,164,196,0.1)]">
-                <table className="w-full   text-sm table-fixed">
+              <div className="rounded-lg mt-3 overflow-x-scroll custom-scrollbar border border-[rgba(127,164,196,0.1)]">
+                <table className="w-full text-sm">
                   {/* Header */}
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
@@ -281,7 +471,6 @@ function ManageUsers() {
                       <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
                         Status
                       </th>
-
                       <th className="px-6 py-4 text-center font-semibold text-[#7fa4c4]">
                         Actions
                       </th>
@@ -290,7 +479,7 @@ function ManageUsers() {
 
                   {/* Body */}
                   <tbody className="divide-y divide-[rgba(127,164,196,0.1)]">
-                    {users.length > 0 ? (
+                    {users?.length > 0 ? (
                       users.map((user) => (
                         <tr
                           key={user.id}
@@ -355,10 +544,16 @@ function ManageUsers() {
                               <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]">
                                 <Eye size={16} />
                               </button>
-                              <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]">
+                              <button
+                                onClick={() => handleEditUser(user)}
+                                className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]"
+                              >
                                 <Edit2 size={16} />
                               </button>
-                              <button className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400">
+                              <button
+                                onClick={() => handleRemoveUser(user)}
+                                className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400"
+                              >
                                 <Trash2 size={16} />
                               </button>
                             </div>
@@ -392,16 +587,15 @@ function ManageUsers() {
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                 <h3 className="text-sm font-semibold text-white tracking-tight">
-                  Add Users
+                  {isEditMode ? "Edit User" : "Add Users"}
                 </h3>
                 <button
                   onClick={() => {
                     setAddUserOpen(false);
-                    handleReset();
                   }}
                   className="text-[#9db5d6] hover:text-white transition"
                 >
-                  ✕
+                  <X size={20} />
                 </button>
               </div>
 
@@ -495,16 +689,14 @@ function ManageUsers() {
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                 <h3 className="text-sm font-semibold text-white tracking-tight">
-                  Add Users
+                  {isEditMode ? "Edit User" : "Add Users"}
                 </h3>
 
                 <button
-                  onClick={() => {
-                    setAddSingleUserOpen(false);
-                  }}
+                  onClick={closeModals}
                   className="text-[#9db5d6] hover:text-white transition"
                 >
-                  ✕
+                  <X size={20} />
                 </button>
               </div>
               {/* Body */}
@@ -516,21 +708,21 @@ function ManageUsers() {
                   </label>
                   <input
                     name="companyUserId"
+                    placeholder="e.g.. EMP-1004"
                     value={userData.companyUserId}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g., EMP-1023"
-                    className="
-                    w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                    border border-white/10 px-3 py-2 text-sm text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                    transition-all
-                  "
+                    onChange={handleInputChange}
+                    disabled={isEditMode}
+                    className={`
+                      w-full rounded-lg px-3 py-2 text-sm
+                      border border-white/10
+                      ${
+                        isEditMode
+                          ? "bg-[rgba(15,23,42,0.4)] text-slate-400 cursor-not-allowed"
+                          : "bg-[rgba(15,23,42,0.6)] text-white"
+                      }
+                    `}
                   />
+
                   <p className="text-xs text-slate-400 mt-1">
                     Identifier used internally within your organization
                   </p>
@@ -543,12 +735,8 @@ function ManageUsers() {
                   </label>
                   <input
                     name="name"
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
+                    value={userData.name}
+                    onChange={handleInputChange}
                     placeholder="e.g., Rahul Sharma"
                     className="
                     w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -568,12 +756,7 @@ function ManageUsers() {
                     type="email"
                     name="email"
                     value={userData.email}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
+                    onChange={handleInputChange}
                     placeholder="e.g., user@company.com"
                     className="
                       w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -595,12 +778,7 @@ function ManageUsers() {
                     type="text"
                     name="role"
                     value={userData.role}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
+                    onChange={handleInputChange}
                     placeholder="e.g., viewer, user"
                     className="
                       w-full rounded-lg bg-[rgba(15,23,42,0.6)]
@@ -615,22 +793,20 @@ function ManageUsers() {
               {/* Footer */}
               <div className="flex justify-end gap-2 px-5 py-3 border-t border-white/10">
                 <button
-                  onClick={() => {
-                    setAddSingleUserOpen(false);
-                  }}
+                  onClick={closeModals}
                   className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={addSingleUser}
+                  onClick={isEditMode ? updateUser : addSingleUser}
                   className="
                     px-4 py-2 text-sm rounded-lg
                     bg-[#7fa4c4] hover:bg-[#6b8fb0]
                     text-white font-medium transition-all
                   "
                 >
-                  Add User
+                  {isEditMode ? "Update User" : "Add User"}
                 </button>
               </div>
             </div>
@@ -660,7 +836,7 @@ function ManageUsers() {
                   }}
                   className="text-[#9db5d6] hover:text-white transition"
                 >
-                  ✕
+                  <X size={20} />
                 </button>
               </div>
 
@@ -673,41 +849,100 @@ function ManageUsers() {
                 </div>
 
                 {/* CSV Upload */}
+
                 <div>
                   <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
                     Upload CSV File <span className="text-red-400">*</span>
                   </label>
 
-                  <div
-                    className="
-                    flex flex-col items-center justify-center gap-2
-                    w-full rounded-lg border border-dashed border-white/20
-                    bg-[rgba(15,23,42,0.5)]
-                    px-4 py-6 text-center
-                    hover:border-[rgba(127,164,196,0.4)]
-                    transition
-                  "
-                  >
-                    <p className="text-sm text-slate-300">
-                      Drag & drop CSV file here
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      or click to browse from your system
-                    </p>
+                  {/* Hidden Input (Always present so it works) */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".csv"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
 
-                    <button
-                      type="button"
+                  {file ? (
+                    <div
                       className="
-                        mt-2 px-3 py-1.5 text-xs rounded-md
-                        bg-[rgba(127,164,196,0.2)]
-                        text-white hover:bg-[rgba(127,164,196,0.3)]
-                        transition
-                      "
+                      flex items-center justify-between
+                      w-full rounded-lg border border-[rgba(127,164,196,0.3)]
+                      bg-[rgba(127,164,196,0.05)]
+                      p-3 transition-all animate-in fade-in zoom-in-95 duration-200
+                    "
                     >
-                      Browse File
-                    </button>
-                  </div>
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="p-2 rounded-md bg-green-500/10 text-green-400">
+                          <FileSpreadsheet size={20} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
 
+                      <button
+                        onClick={handleRemoveFile}
+                        className="
+                      p-2 rounded-lg text-slate-400
+                      hover:text-white hover:bg-red-500/20 hover:text-red-400
+                      transition-colors
+                    "
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      className="
+                        flex flex-col items-center justify-center gap-2
+                        w-full rounded-lg border border-dashed border-white/20
+                        bg-[rgba(15,23,42,0.5)]
+                        px-4 py-6 text-center
+                        hover:border-[rgba(127,164,196,0.4)]
+                        hover:bg-[rgba(15,23,42,0.7)]
+                        transition cursor-pointer group
+                      "
+                      onClick={handleButtonClick}
+                    >
+                      <div className="p-3 rounded-full bg-white/5 group-hover:bg-[#7fa4c4]/10 transition mb-1">
+                        <UploadCloud size={24} className="text-[#7fa4c4]" />
+                      </div>
+
+                      <p className="text-sm text-slate-300">
+                        Drag & drop CSV file here
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        or click to browse
+                      </p>
+
+                      <button
+                        type="button"
+                        // onClick is handled by the parent div wrapper for better UX,
+                        // but kept here just in case you remove the parent onClick
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleButtonClick();
+                        }}
+                        className="
+                        mt-2 px-3 py-1.5 text-xs rounded-md
+                        bg-[rgba(127,164,196,0.1)] border border-[rgba(127,164,196,0.2)]
+                        text-[#9db5d6] group-hover:bg-[#7fa4c4] group-hover:text-white
+                        transition-all duration-300
+                      "
+                      >
+                        Browse File
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
                   <p className="text-xs text-slate-400 mt-2">
                     Supported format:{" "}
                     <code className="text-slate-300">.csv</code>
@@ -749,11 +984,12 @@ function ManageUsers() {
                 </button>
 
                 <button
+                  onClick={handleUploadToCloud}
                   className="
-            px-4 py-2 text-sm rounded-lg
-            bg-[#7fa4c4] hover:bg-[#6b8fb0]
-            text-white font-medium transition-all
-          "
+                      px-4 py-2 text-sm rounded-lg
+                      bg-[#7fa4c4] hover:bg-[#6b8fb0]
+                      text-white font-medium transition-all
+                    "
                 >
                   Upload & Invite
                 </button>

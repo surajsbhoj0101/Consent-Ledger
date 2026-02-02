@@ -21,6 +21,9 @@ app.use(
 );
 app.use(express.json());
 
+app.use('/uploads', express.static('uploads'));
+
+
 connectDB();
 // routes
 app.use("/api/auth", authRoutes);

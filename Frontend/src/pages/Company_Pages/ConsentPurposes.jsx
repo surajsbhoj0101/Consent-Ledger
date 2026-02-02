@@ -316,7 +316,7 @@ function ConsentPurposes() {
               </div>
 
               {/* table based section */}
-              <div className="rounded-lg mt-3 overflow-hidden border border-[rgba(127,164,196,0.1)]">
+              <div className="rounded-lg mt-3 overflow-x-scroll custom-scrollbar border border-[rgba(127,164,196,0.1)]">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
@@ -474,7 +474,7 @@ function ConsentPurposes() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
                   <div>
                     <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
                       Consent Type
@@ -506,20 +506,7 @@ function ConsentPurposes() {
                       <option value="Indefinite">Indefinite</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className="w-full rounded-lg  bg-[rgba(15,23,42,0.6)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
+                  
                 </div>
               </form>
 
