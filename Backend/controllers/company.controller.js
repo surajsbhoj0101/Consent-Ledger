@@ -1,5 +1,6 @@
 import Company from "../models/company.model.js";
 import companyUserModel from "../models/companyUser.model.js";
+import ConsentPurpose from "../models/consentPurpose.model.js";
 import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
@@ -56,6 +57,88 @@ export const editCompanyDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Edit company details error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCompanyProfile = async (req, res) => {
+  try {
+    const { id, role } = req;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    const company = await Company.findOne({ userId: id });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      company,
+    });
+  } catch (error) {
+    console.error("Get company profile error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const uploadCompanyProfileImage = async (req, res) => {
+  try {
+    const { id, role } = req;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Profile image is required",
+      });
+    }
+
+    const profileUrl = `/uploads/${req.file.filename}`;
+
+    const updatedCompany = await Company.findOneAndUpdate(
+      { userId: id },
+      { $set: { profileUrl } },
+      { new: true },
+    );
+
+    if (!updatedCompany) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      profileUrl,
+      company: updatedCompany,
+    });
+  } catch (error) {
+    console.error("Upload company profile image error:", error);
 
     return res.status(500).json({
       success: false,
@@ -350,6 +433,178 @@ export const addMultipleUsers = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to process file",
+    });
+  }
+};
+
+export const createConsentPurpose = async (req, res) => {
+  try {
+    const { id, role } = req;
+    const { name, description, consentType, duration, status } = req.body;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    if (!name || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "Name and description are required",
+      });
+    }
+
+    const purpose = await ConsentPurpose.create({
+      companyId: id,
+      name: name.trim(),
+      description: description.trim(),
+      consentType: consentType?.trim() || "Required",
+      duration: duration?.trim() || "12 months",
+      status: status?.trim() || "Active",
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Consent purpose created",
+      purpose,
+    });
+  } catch (error) {
+    console.error("createConsentPurpose error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const fetchConsentPurposes = async (req, res) => {
+  try {
+    const { id, role } = req;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    const purposes = await ConsentPurpose.find({ companyId: id }).sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json({
+      success: true,
+      purposes,
+    });
+  } catch (error) {
+    console.error("fetchConsentPurposes error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const updateConsentPurpose = async (req, res) => {
+  try {
+    const { id, role } = req;
+    const { purposeId, updates } = req.body;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    if (!purposeId) {
+      return res.status(400).json({
+        success: false,
+        message: "purposeId is required",
+      });
+    }
+
+    const updateFields = {};
+    if (updates?.name !== undefined) updateFields.name = updates.name.trim();
+    if (updates?.description !== undefined)
+      updateFields.description = updates.description.trim();
+    if (updates?.consentType !== undefined)
+      updateFields.consentType = updates.consentType.trim();
+    if (updates?.duration !== undefined)
+      updateFields.duration = updates.duration.trim();
+    if (updates?.status !== undefined)
+      updateFields.status = updates.status.trim();
+
+    const purpose = await ConsentPurpose.findOneAndUpdate(
+      { _id: purposeId, companyId: id },
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!purpose) {
+      return res.status(404).json({
+        success: false,
+        message: "Consent purpose not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Consent purpose updated",
+      purpose,
+    });
+  } catch (error) {
+    console.error("updateConsentPurpose error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const deleteConsentPurpose = async (req, res) => {
+  try {
+    const { id, role } = req;
+    const { purposeId } = req.body;
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    if (!purposeId) {
+      return res.status(400).json({
+        success: false,
+        message: "purposeId is required",
+      });
+    }
+
+    const deleted = await ConsentPurpose.findOneAndDelete({
+      _id: purposeId,
+      companyId: id,
+    });
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Consent purpose not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Consent purpose deleted",
+      purpose: deleted,
+    });
+  } catch (error) {
+    console.error("deleteConsentPurpose error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };

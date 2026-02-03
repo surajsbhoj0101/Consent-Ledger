@@ -139,7 +139,7 @@ function RegisterConsumer() {
               backdrop-blur-md shadow-lg transition-all
               ${redNotice
                 ? "bg-red-500/20 border border-red-400/40 text-red-300"
-                : "bg-[#a78bfa]/20 border border-[#a78bfa]/40 text-[#e9d5ff]"}
+                : "bg-[#7fa4c4]/20 border border-[#7fa4c4]/40 text-[#e9d5ff]"}
             `}
           >
             {notice}
@@ -157,7 +157,7 @@ function RegisterConsumer() {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute h-24 w-24 rounded-full bg-[#a78bfa]/25 blur-3xl" />
+              <div className="absolute h-24 w-24 rounded-full bg-[#7fa4c4]/25 blur-3xl" />
               <User
                 size={100}
                 strokeWidth={1.1}
@@ -178,8 +178,8 @@ function RegisterConsumer() {
           className="
             group relative rounded-2xl
             bg-white/3 backdrop-blur-md p-8 md:p-10
-            border border-[#a78bfa]/40
-            hover:shadow-[0_0_0_1px_#a78bfa,0_0_75px_rgba(167,139,250,0.35)]
+            border border-[#7fa4c4]/40
+            hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(167,139,250,0.35)]
             transition-all duration-500
           "
         >
@@ -187,13 +187,13 @@ function RegisterConsumer() {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm font-medium text-white/70">Profile Completion</span>
-              <span className={`text-sm font-semibold transition-colors text-[#a78bfa]`}>
+              <span className={`text-sm font-semibold transition-colors text-[#7fa4c4]`}>
                 {progressPercentage}%
               </span>
             </div>
-            <div className="w-full h-2.5 rounded-full bg-white/10 border border-[#a78bfa]/20 overflow-hidden">
+            <div className="w-full h-2.5 rounded-full bg-white/10 border border-[#7fa4c4]/20 overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r from-[#a78bfa] to-[#8b5cf6]`}
+                className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0]`}
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -227,7 +227,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    border-[#a78bfa]/30 focus:border-[#a78bfa]
+                    border-[#7fa4c4]/30 focus:border-[#7fa4c4]
                     
                   `}
                 />
@@ -257,7 +257,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                 border-[#a78bfa]/30 focus:border-[#a78bfa]
+                 border-[#7fa4c4]/30 focus:border-[#7fa4c4]
                   `}
                 />
                 {errors.lastName && (
@@ -291,7 +291,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    border-[#a78bfa]/30 focus:border-[#a78bfa]
+                    border-[#7fa4c4]/30 focus:border-[#7fa4c4]
                   `}
                 />
                 {errors.email && (
@@ -316,9 +316,9 @@ function RegisterConsumer() {
                   placeholder="+1 (555) 123-4567"
                   className="
                     w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#a78bfa]/30
+                    bg-white/5 border border-[#7fa4c4]/30
                     text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
+                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                     transition-all duration-300
                   "
                 />
@@ -342,9 +342,9 @@ function RegisterConsumer() {
                 placeholder="Street address"
                 className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#a78bfa]/30
+                  bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
+                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                   transition-all duration-300
                 "
               />
@@ -364,9 +364,9 @@ function RegisterConsumer() {
                 rows="4"
                 className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#a78bfa]/30
+                  bg-white/5 border border-[#7fa4c4]/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#a78bfa] focus:outline-none
+                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                   transition-all duration-300
                   resize-none
                 "
@@ -380,8 +380,8 @@ function RegisterConsumer() {
               disabled={filledRequired < requiredFields.length}
               className="
                 w-full mt-8 py-3 px-6 rounded-xl
-                bg-gradient-to-r from-[#a78bfa]/65 to-[#8b5cf6]/65
-                hover:from-[#a78bfa] hover:to-[#8b5cf6]
+                bg-gradient-to-r from-[#7fa4c4]/65 to-[#6b8fb0]/65
+                hover:from-[#7fa4c4] hover:to-[#6b8fb0]
                 text-white font-medium text-sm
                 shadow-lg transition-all duration-300
                 hover:shadow-[0_0_30px_rgba(167,139,250,0.5)]

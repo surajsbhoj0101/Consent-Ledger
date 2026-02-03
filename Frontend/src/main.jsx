@@ -2,7 +2,6 @@ import "./index.css";
 import ReactDOM from "react-dom/client";
 import { Web3AuthProvider } from "@web3auth/modal/react";
 import web3AuthContextConfig from "./context/web3AuthContext";
-import { BrowserRouter } from "react-router-dom";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Snowfall from "react-snowfall";
 
@@ -16,6 +15,14 @@ import CompanyDashboard from "./pages/Company_Pages/CompanyDashboard";
 import ConsentPurposes from "./pages/Company_Pages/ConsentPurposes";
 import ConsentRequest from "./pages/Company_Pages/ConsentRequest";
 import ManageUsers from "./pages/Company_Pages/ManageUsers";
+import CompanyProfile from "./pages/Company_Pages/CompanyProfile";
+import CompanySettings from "./pages/Company_Pages/CompanySettings";
+import AuditLogs from "./pages/Company_Pages/AuditLogs";
+import ConsumerDashboard from "./pages/User_Pages/ConsumerDashboard";
+import MyConsents from "./pages/User_Pages/MyConsents";
+import ConsumerHistory from "./pages/User_Pages/ConsumerHistory";
+import ConsumerProfile from "./pages/User_Pages/ConsumerProfile";
+import ConsumerSettings from "./pages/User_Pages/ConsumerSettings";
 
 const queryClient = new QueryClient();
 
@@ -46,7 +53,47 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/company/Dashboard",
+    path: "/consumer/dashboard",
+    element: (
+      <>
+        <ConsumerDashboard />
+      </>
+    ),
+  },
+  {
+    path: "/consumer/consents",
+    element: (
+      <>
+        <MyConsents />
+      </>
+    ),
+  },
+  {
+    path: "/consumer/history",
+    element: (
+      <>
+        <ConsumerHistory />
+      </>
+    ),
+  },
+  {
+    path: "/consumer/profile",
+    element: (
+      <>
+        <ConsumerProfile />
+      </>
+    ),
+  },
+  {
+    path: "/consumer/settings",
+    element: (
+      <>
+        <ConsumerSettings />
+      </>
+    ),
+  },
+  {
+    path: "/company/dashboard",
     element: (
       <>
         <CompanyDashboard />
@@ -74,6 +121,30 @@ const router = createBrowserRouter([
     element: (
       <>
         <ConsentRequest />
+      </>
+    ),
+  },
+  {
+    path: "/company/profile",
+    element: (
+      <>
+        <CompanyProfile />
+      </>
+    ),
+  },
+  {
+    path: "/company/settings",
+    element: (
+      <>
+        <CompanySettings />
+      </>
+    ),
+  },
+  {
+    path: "/company/audit-logs",
+    element: (
+      <>
+        <AuditLogs />
       </>
     ),
   },

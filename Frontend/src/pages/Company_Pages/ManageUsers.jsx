@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Wallet from "../../components/WalletComponent";
@@ -60,6 +60,31 @@ function ManageUsers() {
   });
 
   const [users, setUsers] = useState([]);
+  const filteredUsers = useMemo(() => {
+    let result = [...users];
+
+    if (searchData.search?.trim()) {
+      const q = searchData.search.toLowerCase();
+      result = result.filter((user) =>
+        [user.name, user.email, user.id, user.role, user.status]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(q)),
+      );
+    }
+
+    const sortValue = searchData.sortBy?.toLowerCase();
+    if (sortValue?.includes("name")) {
+      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (sortValue?.includes("time")) {
+      result.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      });
+    }
+
+    return result;
+  }, [users, searchData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -128,6 +153,7 @@ function ManageUsers() {
           email: u?.email,
           role: u?.role,
           status: u?.status,
+          createdAt: u?.createdAt || new Date().toISOString(),
         };
         setUsers((prev) => [...prev, newPayload]);
         return;
@@ -208,6 +234,7 @@ function ManageUsers() {
         email: u?.email,
         role: u?.role,
         status: u?.status,
+        createdAt: u?.createdAt,
       }));
 
       setUsers(payload);
@@ -351,7 +378,8 @@ function ManageUsers() {
           name: u.name,
           email: u.email,
           role: u.role,
-          status:u.status
+          status: u.status,
+          createdAt: u?.createdAt || new Date().toISOString(),
         }));
 
         setUsers((prev) => [...prev, ...newUsers]);
@@ -418,7 +446,7 @@ function ManageUsers() {
               </div>
             </div>
 
-            <div className="p-5 mt-6 mx-4 rounded-lg border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] backdrop-blur-md hover:border-[rgba(127,164,196,0.3)] transition-all duration-300 shadow-lg">
+            <div className="p-5 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-[#7fa4c4]/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-white font-bold text-2xl tracking-tight">
@@ -449,9 +477,13 @@ function ManageUsers() {
 
               {/* Search filter component */}
               <div>
-                <UseSearchFilter value={searchData} onChange={setSearchData} />
+                <UseSearchFilter
+                  value={searchData}
+                  onChange={setSearchData}
+                  total={filteredUsers.length}
+                />
               </div>
-              <div className="rounded-lg mt-3 overflow-x-scroll custom-scrollbar border border-[rgba(127,164,196,0.1)]">
+              <div className="rounded-2xl mt-3 overflow-x-scroll custom-scrollbar border border-[rgba(127,164,196,0.2)] bg-[rgba(10,16,28,0.35)] shadow-[0_12px_40px_rgba(10,14,24,0.45)]">
                 <table className="w-full text-sm">
                   {/* Header */}
                   <thead>
@@ -479,8 +511,8 @@ function ManageUsers() {
 
                   {/* Body */}
                   <tbody className="divide-y divide-[rgba(127,164,196,0.1)]">
-                    {users?.length > 0 ? (
-                      users.map((user) => (
+                    {filteredUsers?.length > 0 ? (
+                      filteredUsers.map((user) => (
                         <tr
                           key={user.id}
                           className="hover:bg-[rgba(127,164,196,0.08)] transition-colors duration-150 group"
@@ -583,7 +615,7 @@ function ManageUsers() {
         {addUserOpen && (
           <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-sm p-4 md:p-6 pt-20">
             {/* Small Panel */}
-            <div className="w-full max-w-2xl rounded-xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] border-white/10 shadow-2xl animate-in slide-in-from-right-6 fade-in duration-200">
+            <div className="w-full max-w-2xl rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] border-white/10 shadow-[0_20px_60px_rgba(10,14,24,0.55)] animate-in slide-in-from-right-6 fade-in duration-200 backdrop-blur-xl">
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
                 <h3 className="text-sm font-semibold text-white tracking-tight">
@@ -713,13 +745,14 @@ function ManageUsers() {
                     onChange={handleInputChange}
                     disabled={isEditMode}
                     className={`
-                      w-full rounded-lg px-3 py-2 text-sm
-                      border border-white/10
+                      w-full rounded-lg px-4 py-3 text-sm
+                      border border-[#7fa4c4]/30
                       ${
                         isEditMode
-                          ? "bg-[rgba(15,23,42,0.4)] text-slate-400 cursor-not-allowed"
-                          : "bg-[rgba(15,23,42,0.6)] text-white"
+                          ? "bg-white/5 text-slate-400 cursor-not-allowed"
+                          : "bg-white/5 text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4]"
                       }
+                      focus:outline-none transition-all duration-300
                     `}
                   />
 
@@ -739,10 +772,10 @@ function ManageUsers() {
                     onChange={handleInputChange}
                     placeholder="e.g., Rahul Sharma"
                     className="
-                    w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                    border border-white/10 px-3 py-2 text-sm text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                    transition-all
+                    w-full rounded-lg bg-white/5
+                    border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
+                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                    transition-all duration-300
                   "
                   />
                 </div>
@@ -759,10 +792,10 @@ function ManageUsers() {
                     onChange={handleInputChange}
                     placeholder="e.g., user@company.com"
                     className="
-                      w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                      border border-white/10 px-3 py-2 text-sm text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                      transition-all
+                      w-full rounded-lg bg-white/5
+                      border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
+                      focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                      transition-all duration-300
                     "
                   />
                   <p className="text-xs text-slate-400 mt-1">
@@ -781,10 +814,10 @@ function ManageUsers() {
                     onChange={handleInputChange}
                     placeholder="e.g., viewer, user"
                     className="
-                      w-full rounded-lg bg-[rgba(15,23,42,0.6)]
-                      border border-white/10 px-3 py-2 text-sm text-white
-                      focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                      transition-all
+                      w-full rounded-lg bg-white/5
+                      border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
+                      focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                      transition-all duration-300
                     "
                   />
                 </div>
@@ -817,12 +850,12 @@ function ManageUsers() {
           <div className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-sm p-4 md:p-6 pt-20">
             {/* Small Panel */}
             <div
-              className="w-full max-w-2xl rounded-xl border border-[rgba(127,164,196,0.15)]
-                bg-gradient-to-br from-[rgba(30,41,59,0.5)]
-                via-[rgba(20,30,48,0.3)]
-                to-[rgba(15,23,42,0.2)]
-                border-white/10 shadow-2xl
-                animate-in slide-in-from-right-6 fade-in duration-200"
+              className="w-full max-w-2xl rounded-2xl border border-[rgba(127,164,196,0.2)]
+                bg-gradient-to-br from-[rgba(30,41,59,0.65)]
+                via-[rgba(20,30,48,0.4)]
+                to-[rgba(15,23,42,0.25)]
+                border-white/10 shadow-[0_20px_60px_rgba(10,14,24,0.55)]
+                animate-in slide-in-from-right-6 fade-in duration-200 backdrop-blur-xl"
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -868,8 +901,8 @@ function ManageUsers() {
                     <div
                       className="
                       flex items-center justify-between
-                      w-full rounded-lg border border-[rgba(127,164,196,0.3)]
-                      bg-[rgba(127,164,196,0.05)]
+                      w-full rounded-xl border border-[rgba(127,164,196,0.35)]
+                      bg-[rgba(127,164,196,0.08)]
                       p-3 transition-all animate-in fade-in zoom-in-95 duration-200
                     "
                     >
@@ -902,11 +935,11 @@ function ManageUsers() {
                     <div
                       className="
                         flex flex-col items-center justify-center gap-2
-                        w-full rounded-lg border border-dashed border-white/20
-                        bg-[rgba(15,23,42,0.5)]
+                        w-full rounded-xl border border-dashed border-[rgba(127,164,196,0.35)]
+                        bg-[rgba(15,23,42,0.6)]
                         px-4 py-6 text-center
-                        hover:border-[rgba(127,164,196,0.4)]
-                        hover:bg-[rgba(15,23,42,0.7)]
+                        hover:border-[#7fa4c4]/70
+                        hover:bg-[rgba(15,23,42,0.75)]
                         transition cursor-pointer group
                       "
                       onClick={handleButtonClick}

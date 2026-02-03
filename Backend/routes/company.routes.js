@@ -1,12 +1,20 @@
 import express from "express";
-import { editCompanyDetails } from "../controllers/company.controller.js";
+import {
+  editCompanyDetails,
+  getCompanyProfile,
+  uploadCompanyProfileImage,
+  checkRegister,
+  addSingleUser,
+  fetchUsers,
+  removeUser,
+  updateUser,
+  addMultipleUsers,
+  createConsentPurpose,
+  fetchConsentPurposes,
+  updateConsentPurpose,
+  deleteConsentPurpose,
+} from "../controllers/company.controller.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
-import { checkRegister } from "../controllers/company.controller.js";
-import { addSingleUser } from "../controllers/company.controller.js";
-import { fetchUsers } from "../controllers/company.controller.js";
-import { removeUser } from "../controllers/company.controller.js";
-import { updateUser } from "../controllers/company.controller.js";
-import { addMultipleUsers } from "../controllers/company.controller.js";
 import multer from "multer";
 import path from "path"
 
@@ -24,6 +32,13 @@ const upload = multer({ storage: storage });
 const companyRoutes = express.Router();
 
 companyRoutes.put("/edit-company-details", requireAuth, editCompanyDetails);
+companyRoutes.get("/profile", requireAuth, getCompanyProfile);
+companyRoutes.post(
+  "/profile-image",
+  requireAuth,
+  upload.single("file"),
+  uploadCompanyProfileImage,
+);
 companyRoutes.get("/check-registered", requireAuth, checkRegister);
 companyRoutes.post("/add-single-user", requireAuth, addSingleUser);
 companyRoutes.get("/fetch-users", requireAuth, fetchUsers);
@@ -35,5 +50,9 @@ companyRoutes.post(
   upload.single("file"),
   addMultipleUsers,
 );
+companyRoutes.post("/consent-purposes", requireAuth, createConsentPurpose);
+companyRoutes.get("/consent-purposes", requireAuth, fetchConsentPurposes);
+companyRoutes.put("/consent-purposes", requireAuth, updateConsentPurpose);
+companyRoutes.delete("/consent-purposes", requireAuth, deleteConsentPurpose);
 
 export default companyRoutes;

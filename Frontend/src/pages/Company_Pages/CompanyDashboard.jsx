@@ -162,7 +162,7 @@ function CompanyDashboard() {
                   {stats.map((stat, index) => (
                     <div
                       key={index}
-                      className="group p-6 rounded-2xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] hover:border-[rgba(127,164,196,0.4)] hover:shadow-xl hover:shadow-[rgba(127,164,196,0.1)] transition-all duration-300 backdrop-blur-md"
+                      className="group relative overflow-hidden p-6 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl shadow-[0_18px_50px_rgba(10,14,24,0.5)] hover:border-[#7fa4c4]/60 hover:shadow-[0_18px_60px_rgba(127,164,196,0.2)] transition-all duration-300"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -196,7 +196,7 @@ function CompanyDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Chart Area */}
                 <div className="lg:col-span-2">
-                  <div className="p-8 rounded-2xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] backdrop-blur-md hover:border-[rgba(127,164,196,0.3)] transition-all">
+                  <div className="p-8 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl shadow-[0_18px_50px_rgba(10,14,24,0.5)] hover:border-[#7fa4c4]/60 transition-all">
                     <div className="flex items-center justify-between mb-8">
                       <div className="flex items-center gap-3">
                         <TrendingDown size={24} className="text-[#7fa4c4]" />
@@ -204,10 +204,10 @@ function CompanyDashboard() {
                           Consent Trends
                         </h3>
                       </div>
-                      <select className="px-4 py-2 text-sm bg-[rgba(127,164,196,0.08)] border border-[rgba(127,164,196,0.2)] rounded-lg text-[#7fa4c4] cursor-pointer hover:bg-[rgba(127,164,196,0.15)] transition-all font-medium">
-                        <option className="bg-gray-800">Last 7 days</option>
-                        <option className="bg-gray-800">Last 30 days</option>
-                        <option className="bg-gray-800">Last 90 days</option>
+                      <select className="px-4 py-2 text-sm bg-white/5 border border-[#7fa4c4]/30 rounded-lg text-white cursor-pointer hover:bg-white/8 transition-all font-medium">
+                        <option className="bg-[#282d36]">Last 7 days</option>
+                        <option className="bg-[#282d36]">Last 30 days</option>
+                        <option className="bg-[#282d36]">Last 90 days</option>
                       </select>
                     </div>
                     <div className="h-72 flex items-center justify-center rounded-lg bg-[rgba(127,164,196,0.05)] border border-dashed border-[rgba(127,164,196,0.2)]">
@@ -228,7 +228,7 @@ function CompanyDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="p-8 rounded-2xl border border-[rgba(127,164,196,0.15)] bg-gradient-to-br from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.3)] to-[rgba(15,23,42,0.2)] backdrop-blur-md hover:border-[rgba(127,164,196,0.3)] transition-all">
+                <div className="p-8 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl shadow-[0_18px_50px_rgba(10,14,24,0.5)] hover:border-[#7fa4c4]/60 transition-all">
                   <div className="flex items-center gap-3 mb-6">
                     <Clock size={24} className="text-[#7fa4c4]" />
                     <h3 className="text-lg font-bold text-gray-200">
@@ -271,7 +271,7 @@ function CompanyDashboard() {
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <button className="group p-6 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(127,164,196,0.12)] to-[rgba(127,164,196,0.04)] hover:border-[rgba(127,164,196,0.4)] hover:from-[rgba(127,164,196,0.18)] hover:to-[rgba(127,164,196,0.08)] transition-all text-left hover:shadow-lg hover:shadow-[rgba(127,164,196,0.1)]">
+                  <button className="group relative overflow-hidden p-6 rounded-2xl border border-[rgba(127,164,196,0.25)] bg-gradient-to-br from-[rgba(30,41,59,0.55)] via-[rgba(20,30,48,0.35)] to-[rgba(15,23,42,0.2)] hover:border-[#7fa4c4]/60 transition-all text-left shadow-[0_16px_40px_rgba(10,14,24,0.45)] hover:shadow-[0_18px_50px_rgba(127,164,196,0.2)]">
                     <div className="flex space-x-2 text-[#7fa4c4]">
                       {" "}
                       <CirclePlus />
@@ -283,7 +283,7 @@ function CompanyDashboard() {
                       Set up a new consent request
                     </p>
                   </button>
-                  <button className="group p-6 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(127,164,196,0.12)] to-[rgba(127,164,196,0.04)] hover:border-[rgba(127,164,196,0.4)] hover:from-[rgba(127,164,196,0.18)] hover:to-[rgba(127,164,196,0.08)] transition-all text-left hover:shadow-lg hover:shadow-[rgba(127,164,196,0.1)]">
+                  <button className="group relative overflow-hidden p-6 rounded-2xl border border-[rgba(127,164,196,0.25)] bg-gradient-to-br from-[rgba(30,41,59,0.55)] via-[rgba(20,30,48,0.35)] to-[rgba(15,23,42,0.2)] hover:border-[#7fa4c4]/60 transition-all text-left shadow-[0_16px_40px_rgba(10,14,24,0.45)] hover:shadow-[0_18px_50px_rgba(127,164,196,0.2)]">
                     <div className="flex space-x-2 text-[#7fa4c4]">
                       <Users />
                       <p className="text-[#7fa4c4] font-bold text-base group-hover:text-white transition-colors">
@@ -294,7 +294,7 @@ function CompanyDashboard() {
                       View and manage user accounts
                     </p>
                   </button>
-                  <button className="group p-6 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(127,164,196,0.12)] to-[rgba(127,164,196,0.04)] hover:border-[rgba(127,164,196,0.4)] hover:from-[rgba(127,164,196,0.18)] hover:to-[rgba(127,164,196,0.08)] transition-all text-left hover:shadow-lg hover:shadow-[rgba(127,164,196,0.1)]">
+                  <button className="group relative overflow-hidden p-6 rounded-2xl border border-[rgba(127,164,196,0.25)] bg-gradient-to-br from-[rgba(30,41,59,0.55)] via-[rgba(20,30,48,0.35)] to-[rgba(15,23,42,0.2)] hover:border-[#7fa4c4]/60 transition-all text-left shadow-[0_16px_40px_rgba(10,14,24,0.45)] hover:shadow-[0_18px_50px_rgba(127,164,196,0.2)]">
                     <div className="flex space-x-2 text-[#7fa4c4]">
                       {" "}
                       <NotepadText />{" "}
