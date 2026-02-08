@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Sidebar from "../../components/Sidebar";
 import Wallet from "../../components/WalletComponent";
 import NoticeBar from "../../components/NoticeBar";
@@ -24,6 +24,10 @@ function CompanyProfile() {
   const [redNotice, setRedNotice] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [otpCoolDownTime, setOtpCoolDownTime] = useState(0);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const timeRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -159,8 +163,9 @@ function CompanyProfile() {
     formData.description,
     formData.profileUrl,
   ];
-  const completedCount = completionFields.filter((field) => field?.trim?.())
-    .length;
+  const completedCount = completionFields.filter((field) =>
+    field?.trim?.(),
+  ).length;
   const completionPercent = Math.round(
     (completedCount / completionFields.length) * 100,
   );
@@ -201,6 +206,120 @@ function CompanyProfile() {
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
+    }
+  };
+
+  const startCoolDownTimer = (seconds) => {
+    if (timeRef.current) {
+      clearInterval(timeRef.current);
+      timeRef.current = null;
+    }
+    setOtpCoolDownTime(seconds);
+  };
+
+  useEffect(() => {
+    if (otpCoolDownTime <= 0) {
+      if (timeRef.current) {
+        clearInterval(timeRef.current);
+        timeRef.current = null;
+      }
+      return;
+    }
+
+    if (timeRef.current) return;
+
+    timeRef.current = setInterval(() => {
+      setOtpCoolDownTime((prev) => {
+        if (prev <= 1) {
+          if (timeRef.current) {
+            clearInterval(timeRef.current);
+            timeRef.current = null;
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [otpCoolDownTime]);
+
+  const sendOtp = async () => {
+    try {
+      setOtpOpen(true);
+      setOtpSending(true);
+      const res = await axios.get("http://localhost:5000/api/company/send-otp", {
+        withCredentials: true,
+      });
+
+      if (res.data?.success) {
+        setRedNotice(false);
+        setNotice(res.data?.message || "OTP sent successfully");
+        const cooldown =
+          Number(res.data?.cooldownSeconds) ||
+          Number(res.data?.retryAfterSeconds) ||
+          60;
+        startCoolDownTimer(cooldown);
+        return;
+      }
+
+      setRedNotice(true);
+      setNotice(res.data?.message || "Failed to send OTP");
+    } catch (error) {
+      setRedNotice(true);
+      setNotice(
+        error?.response?.data?.message ||
+          "There was an error sending the OTP",
+      );
+      const retryAfter = Number(error?.response?.data?.retryAfterSeconds);
+      if (retryAfter > 0) {
+        startCoolDownTimer(retryAfter);
+      }
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    if (otp.trim().length !== 6) {
+      setRedNotice(true);
+      setNotice("Enter the 6-digit OTP");
+      return;
+    }
+
+    try {
+      setOtpVerifying(true);
+      const res = await axios.post(
+        "http://localhost:5000/api/company/verify-otp",
+        { otp: otp.trim() },
+        { withCredentials: true },
+      );
+
+      if (res.data?.success) {
+        setRedNotice(false);
+        setNotice(res.data?.message || "Email verified successfully");
+        setOtpOpen(false);
+        setOtp("");
+        resetCooldownTime();
+        return;
+      }
+
+      setRedNotice(true);
+      setNotice(res.data?.message || "Invalid OTP");
+    } catch (error) {
+      setRedNotice(true);
+      setNotice(
+        error?.response?.data?.message ||
+          "There was an error verifying the OTP",
+      );
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const resetCooldownTime = () => {
+    setOtpCoolDownTime(0);
+    if (timeRef.current) {
+      clearInterval(timeRef.current);
+      timeRef.current = null;
     }
   };
 
@@ -299,9 +418,7 @@ function CompanyProfile() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) =>
-                        handleImageUpload(e.target.files?.[0])
-                      }
+                      onChange={(e) => handleImageUpload(e.target.files?.[0])}
                       disabled={isUploading}
                     />
                   </label>
@@ -336,10 +453,11 @@ function CompanyProfile() {
                       />
                       <button
                         type="button"
-                        onClick={() => setOtpOpen(true)}
-                        className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap"
+                        onClick={sendOtp}
+                        disabled={otpSending}
+                        className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        Verify Email
+                        {otpSending ? "Sending..." : "Verify Email"}
                       </button>
                     </div>
                   </div>
@@ -459,6 +577,7 @@ function CompanyProfile() {
                 onClick={() => {
                   setOtpOpen(false);
                   setOtp("");
+                  resetCooldownTime();
                 }}
                 className="text-[#9db5d6] hover:text-white transition"
               >
@@ -471,19 +590,30 @@ function CompanyProfile() {
               </p>
               <input
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, ""))
+                }
                 maxLength={6}
                 placeholder="Enter OTP"
                 className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"
               />
               <div className="flex items-center justify-between text-xs text-[#9db5d6]">
                 <span>Didn’t receive it?</span>
-                <button
-                  type="button"
-                  className="text-[#7fa4c4] hover:text-white transition"
-                >
-                  Resend OTP
-                </button>
+                {otpCoolDownTime > 0 ? (
+                  <span>
+                    {" "}
+                    you can request again in {otpCoolDownTime} seconds
+                  </span>
+                ) : (
+                  <button
+                    disabled={otpSending}
+                    type="button"
+                    onClick={sendOtp}
+                    className="text-[#7fa4c4] hover:text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {otpSending ? "Sending..." : "Resend OTP"}
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex justify-end gap-2 px-5 py-4 border-t border-white/10">
@@ -491,6 +621,7 @@ function CompanyProfile() {
                 onClick={() => {
                   setOtpOpen(false);
                   setOtp("");
+                  resetCooldownTime();
                 }}
                 className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
               >
@@ -498,9 +629,11 @@ function CompanyProfile() {
               </button>
               <button
                 type="button"
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all"
+                onClick={verifyOtp}
+                disabled={otpVerifying}
+                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Verify
+                {otpVerifying ? "Verifying..." : "Verify"}
               </button>
             </div>
           </div>

@@ -13,10 +13,11 @@ import {
   fetchConsentPurposes,
   updateConsentPurpose,
   deleteConsentPurpose,
+  sendOtp,
 } from "../controllers/company.controller.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import multer from "multer";
-import path from "path"
+import path from "path";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -54,5 +55,6 @@ companyRoutes.post("/consent-purposes", requireAuth, createConsentPurpose);
 companyRoutes.get("/consent-purposes", requireAuth, fetchConsentPurposes);
 companyRoutes.put("/consent-purposes", requireAuth, updateConsentPurpose);
 companyRoutes.delete("/consent-purposes", requireAuth, deleteConsentPurpose);
+companyRoutes.get("/send-otp", requireAuth, sendOtp);
 
 export default companyRoutes;

@@ -4,7 +4,7 @@ import ConsentPurpose from "../models/consentPurpose.model.js";
 import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
-import path from "path"
+import path from "path";
 
 export const editCompanyDetails = async (req, res) => {
   try {
@@ -341,9 +341,7 @@ export const updateUser = async (req, res) => {
 };
 
 export const addMultipleUsers = async (req, res) => {
-  const filePath = req.file
-    ? path.join(process.cwd(), req.file.path)
-    : null;
+  const filePath = req.file ? path.join(process.cwd(), req.file.path) : null;
 
   try {
     const { id, role } = req;
@@ -407,8 +405,6 @@ export const addMultipleUsers = async (req, res) => {
               message: "No users were added",
             });
           }
-
-         
 
           return res.status(201).json({
             success: true,
@@ -540,7 +536,7 @@ export const updateConsentPurpose = async (req, res) => {
     const purpose = await ConsentPurpose.findOneAndUpdate(
       { _id: purposeId, companyId: id },
       { $set: updateFields },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!purpose) {
@@ -607,4 +603,10 @@ export const deleteConsentPurpose = async (req, res) => {
       message: "Internal server error",
     });
   }
+};
+
+export const sendOtp = async (req, res) => {
+  try {
+   return res.status(200).json({ success: true });
+  } catch (error) {}
 };
