@@ -38,6 +38,7 @@ function CompanyProfile() {
     industry: "",
     description: "",
     profileUrl: "",
+    isVerified: false,
   });
   const [isUploading, setIsUploading] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
@@ -90,6 +91,7 @@ function CompanyProfile() {
         industry: info?.industry || "",
         description: info?.description || "",
         profileUrl: res.data?.company?.profileUrl || "",
+        isVerified: res.data?.company?.isVerified || false,
       });
     } catch (error) {
       setRedNotice(true);
@@ -246,9 +248,12 @@ function CompanyProfile() {
     try {
       setOtpOpen(true);
       setOtpSending(true);
-      const res = await axios.get("http://localhost:5000/api/company/send-otp", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "http://localhost:5000/api/company/send-otp",
+        {
+          withCredentials: true,
+        },
+      );
 
       if (res.data?.success) {
         setRedNotice(false);
@@ -266,8 +271,7 @@ function CompanyProfile() {
     } catch (error) {
       setRedNotice(true);
       setNotice(
-        error?.response?.data?.message ||
-          "There was an error sending the OTP",
+        error?.response?.data?.message || "There was an error sending the OTP",
       );
       const retryAfter = Number(error?.response?.data?.retryAfterSeconds);
       if (retryAfter > 0) {
@@ -451,14 +455,28 @@ function CompanyProfile() {
                         disabled
                         className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/20 px-4 py-3 text-sm text-white/60 cursor-not-allowed"
                       />
-                      <button
-                        type="button"
-                        onClick={sendOtp}
-                        disabled={otpSending}
-                        className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {otpSending ? "Sending..." : "Verify Email"}
-                      </button>
+                      {formData.isVerified ? (
+                        <div className="inline-flex items-center gap-2 rounded-lg border border-[#7fa4c4]/30 bg-white/5 px-3 py-2 text-[#bcd0e6] shadow-[0_6px_18px_rgba(10,14,24,0.35)] backdrop-blur-md">
+                          <span className="text-xs font-semibold tracking-wide">
+                            Verified
+                          </span>
+                          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#7fa4c4]/15 text-[#7fa4c4]">
+                            <ShieldCheck
+                              className="animate-pulse"
+                              size={18}
+                            />
+                          </span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={sendOtp}
+                          disabled={otpSending}
+                          className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {otpSending ? "Sending..." : "Verify Email"}
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -590,9 +608,7 @@ function CompanyProfile() {
               </p>
               <input
                 value={otp}
-                onChange={(e) =>
-                  setOtp(e.target.value.replace(/\D/g, ""))
-                }
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 maxLength={6}
                 placeholder="Enter OTP"
                 className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"

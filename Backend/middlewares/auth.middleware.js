@@ -6,19 +6,19 @@ dotenv.config();
 export const requireAuth = (req, res, next) => {
   try {
     const token = req.cookies?.access_token;
-   console.log("Raw cookies header:", req.headers.cookie);
-console.log("Parsed cookies:", req.cookies);
+    console.log("Raw cookies header:", req.headers.cookie);
+    console.log("Parsed cookies:", req.cookies);
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded)
+    console.log(decoded);
     req.id = decoded.id;
     req.address = decoded.address;
     req.role = decoded.role;
-    console.log("Came here")
+    console.log("Came here");
     return next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
