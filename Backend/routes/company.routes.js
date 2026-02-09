@@ -14,6 +14,7 @@ import {
   updateConsentPurpose,
   deleteConsentPurpose,
   sendOtp,
+  verifyOtp
 } from "../controllers/company.controller.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import multer from "multer";
@@ -56,5 +57,6 @@ companyRoutes.get("/consent-purposes", requireAuth, fetchConsentPurposes);
 companyRoutes.put("/consent-purposes", requireAuth, updateConsentPurpose);
 companyRoutes.delete("/consent-purposes", requireAuth, deleteConsentPurpose);
 companyRoutes.get("/send-otp", requireAuth, sendOtp);
+companyRoutes.put("/verify-otp", requireAuth, verifyOtp);
 
 export default companyRoutes;

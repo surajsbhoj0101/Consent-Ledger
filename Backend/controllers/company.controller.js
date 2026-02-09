@@ -5,6 +5,8 @@ import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
 import path from "path";
+import redis from "../config/redis.js";
+import { sendMail } from "../services/sendmail.js";
 
 export const editCompanyDetails = async (req, res) => {
   try {
@@ -192,6 +194,7 @@ export const addSingleUser = async (req, res) => {
     console.log(existingUser);
 
     if (existingUser) {
+      console.log("here")
       return res.status(409).json({
         success: false,
         message: "User already exists",
@@ -205,6 +208,7 @@ export const addSingleUser = async (req, res) => {
       role: payload.role,
       name: payload.name,
     });
+
     console.log("Success");
     return res.status(201).json({
       success: true,
@@ -232,7 +236,7 @@ export const fetchUsers = async (req, res) => {
     }
 
     const users = await companyUserModel.find({ companyId: id });
-
+    console.log(users)
     return res.status(200).json({
       success: true,
       users,
@@ -607,6 +611,139 @@ export const deleteConsentPurpose = async (req, res) => {
 
 export const sendOtp = async (req, res) => {
   try {
-   return res.status(200).json({ success: true });
-  } catch (error) {}
+    const { id, role } = req; // from auth middleware
+
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    const company = await Company.findOne({ userId: id });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    const email = company?.basicInformation?.email;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Company email is required to send OTP",
+      });
+    }
+
+    const otpKey = `otp:${id}`;
+    const attemptKey = `otp_attempt:${id}`;
+
+    const attempts = await redis.incr(attemptKey);
+
+    if (attempts === 1) {
+      await redis.expire(attemptKey, 600);
+    }
+
+    if (attempts > 5) {
+      return res.status(429).json({
+        success: false,
+        message: "Too many OTP requests. Try later.",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    await redis.setex(otpKey, 120, otp); // 2 min
+    console.log(otp)
+    const mailOptions = {
+      from: `"Consent Ledger" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Email Verification OTP",
+      text: `Your OTP is ${otp}. Valid for 2 minutes.`,
+    };
+
+    const isSent = await sendMail(mailOptions);
+
+    if (!isSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
+
+  } catch (error) {
+    console.error("Send OTP Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 };
+
+export const verifyOtp = async(req, res) =>{
+  try {
+    const { id, role } = req; // from auth middleware
+    console.log("Came here to verify")
+    if (role !== "company") {
+
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    const { otp } = req.body;
+    console.log(otp)
+    if (!otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required",
+      });
+    }
+
+    const otpKey = `otp:${id}`;
+
+    const storedOtp = await redis.get(otpKey);
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired or not found",
+      });
+    }
+
+    if (String(storedOtp) !== String(otp)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    await Company.updateOne({ userId: id }, { $set: { isVerified: true } });
+
+    await redis.del(otpKey);
+    await redis.del(`otp_attempt:${id}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+    });
+
+  } catch (error) {
+    console.error("Verify OTP Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}

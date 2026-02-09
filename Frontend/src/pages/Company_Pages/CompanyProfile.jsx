@@ -256,7 +256,7 @@ function CompanyProfile() {
         const cooldown =
           Number(res.data?.cooldownSeconds) ||
           Number(res.data?.retryAfterSeconds) ||
-          60;
+          120;
         startCoolDownTimer(cooldown);
         return;
       }
@@ -287,7 +287,7 @@ function CompanyProfile() {
 
     try {
       setOtpVerifying(true);
-      const res = await axios.post(
+      const res = await axios.put(
         "http://localhost:5000/api/company/verify-otp",
         { otp: otp.trim() },
         { withCredentials: true },
