@@ -3,42 +3,66 @@ pragma solidity ^0.8.30;
 
 contract ConsentLedger {
     error TermsHashCannotBeNull();
-    error CompanyWebsiteHashCannotBeNull();
-    error ExplanationHashCannotBeNull();
+    error CompanyIdentityHashCannotBeNull();
+    error CompanyAlreadyRegistered();
+    error CompanyNotRegistered();
+    error TermsNotSet();
     error InvalidSignature();
+    error InvalidSignatureLength();
     error SignatureExpired();
     error NotCompanyOwner();
     error TermsNotLatest();
+    error ConsentAlreadyActive();
+    error ConsentAlreadyRevoked();
+    error ConsentExpired();
+    error ConsentCooldownActive();
+    error InvalidConsentDuration();
 
     //EVENTS
     event CompanyRegistered(
-        bytes32 indexed companyWebsite,
+        bytes32 indexed companyIdentityHash,
         address indexed owner
     );
 
     event TermsUpdated(
-        bytes32 indexed companyWebsite,
+        bytes32 indexed companyIdentityHash,
         bytes32 newTermsHash,
         string ipfsCid,
         uint256 timestamp
     );
 
+    event ConsentGiven(
+        address indexed user,
+        bytes32 indexed companyIdentityHash,
+        bytes32 termsHash,
+        uint256 timestamp,
+        string ipfsCid
+    );
+
+    event ConsentRevoked(
+        address indexed user,
+        bytes32 indexed companyIdentityHash,
+        bytes32 termsHash,
+        uint256 timestamp,
+        string ipfsCid
+    );
+
+    // Kept for backward compatibility with existing indexers/listeners.
     event ConsentSaved(
         address indexed user,
-        bytes32 indexed companyWebsite,
-        bytes32 oldTermsHash,
-        bytes32 newTermsHash,
+        bytes32 indexed companyIdentityHash,
+        bytes32 termsHash,
         uint256 timeStamp,
-        bytes32 explanationHash,
         string ipfsCid
     );
 
     //STRUCTS
     struct ConsentRecord {
-        bytes32 oldTermsHash;
-        bytes32 newTermsHash;
+        bytes32 termsHash;
         uint256 timeStamp;
-        bytes32 explanationHash;
+        uint256 revokedAt;
+        uint256 expiresAt;
+        bool active;
         string ipfsCid;
     }
 
@@ -49,6 +73,9 @@ contract ConsentLedger {
     mapping(bytes32 => address) public companyOwner;
     mapping(bytes32 => bytes32) public latestTermsHash;
 
+    uint256 public constant RECONSENT_COOLDOWN = 1 hours;
+    uint256 public constant MAX_CONSENT_DURATION_DAYS = 3650;
+
     bytes32 private constant DOMAIN_TYPEHASH =
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -56,7 +83,7 @@ contract ConsentLedger {
 
     bytes32 private constant CONSENT_TYPEHASH =
         keccak256(
-            "Consent(address user,bytes32 termsHash,bytes32 companyWebsiteHash,bytes32 explanationHash,uint256 nonce,uint256 deadline)"
+            "Consent(address user,bytes32 termsHash,bytes32 companyIdentityHash,uint256 consentDurationDays,uint256 nonce,uint256 deadline)"
         );
 
     bytes32 private immutable DOMAIN_SEPARATOR;
@@ -73,30 +100,39 @@ contract ConsentLedger {
         );
     }
 
-    function registerCompany(bytes32 companyWebsiteHash) external {
-        if (companyWebsiteHash == bytes32(0))
-            revert CompanyWebsiteHashCannotBeNull();
+    function _validateCompanyIdentityHash(
+        bytes32 companyIdentityHash
+    ) internal pure {
+        if (companyIdentityHash == bytes32(0))
+            revert CompanyIdentityHashCannotBeNull();
+    }
 
-        if (companyOwner[companyWebsiteHash] == address(0)) {
-            companyOwner[companyWebsiteHash] = msg.sender;
-            emit CompanyRegistered(companyWebsiteHash, msg.sender);
-        }
+    function registerCompany(bytes32 companyIdentityHash) external {
+        _validateCompanyIdentityHash(companyIdentityHash);
+
+        if (companyOwner[companyIdentityHash] != address(0))
+            revert CompanyAlreadyRegistered();
+
+        companyOwner[companyIdentityHash] = msg.sender;
+        emit CompanyRegistered(companyIdentityHash, msg.sender);
     }
 
     function updateTerms(
-        bytes32 companyWebsiteHash,
+        bytes32 companyIdentityHash,
         bytes32 newTermsHash,
         string calldata ipfsCid
     ) external {
-        if (companyOwner[companyWebsiteHash] != msg.sender)
+        _validateCompanyIdentityHash(companyIdentityHash);
+
+        if (companyOwner[companyIdentityHash] != msg.sender)
             revert NotCompanyOwner();
 
         if (newTermsHash == bytes32(0)) revert TermsHashCannotBeNull();
 
-        latestTermsHash[companyWebsiteHash] = newTermsHash;
+        latestTermsHash[companyIdentityHash] = newTermsHash;
 
         emit TermsUpdated(
-            companyWebsiteHash,
+            companyIdentityHash,
             newTermsHash,
             ipfsCid,
             block.timestamp
@@ -107,8 +143,8 @@ contract ConsentLedger {
     function _hashConsent(
         address user,
         bytes32 termsHash,
-        bytes32 companyWebsiteHash,
-        bytes32 explanationHash,
+        bytes32 companyIdentityHash,
+        uint256 consentDurationDays,
         uint256 nonce,
         uint256 deadline
     ) internal view returns (bytes32) {
@@ -122,8 +158,8 @@ contract ConsentLedger {
                             CONSENT_TYPEHASH,
                             user,
                             termsHash,
-                            companyWebsiteHash,
-                            explanationHash,
+                            companyIdentityHash,
+                            consentDurationDays,
                             nonce,
                             deadline
                         )
@@ -137,30 +173,137 @@ contract ConsentLedger {
         bytes32 digest,
         bytes calldata signature
     ) internal pure returns (bool) {
-        (bytes32 r, bytes32 s, uint8 v) = abi.decode(
-            signature,
-            (bytes32, bytes32, uint8)
-        );
+        if (signature.length != 65) revert InvalidSignatureLength();
+
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        assembly {
+            r := calldataload(signature.offset)
+            s := calldataload(add(signature.offset, 32))
+            v := byte(0, calldataload(add(signature.offset, 64)))
+        }
 
         if (v != 27 && v != 28) return false;
+        if (
+            uint256(s) >
+            0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0
+        ) return false;
 
         address recovered = ecrecover(digest, v, r, s);
         return recovered != address(0) && recovered == signer;
     }
 
-    //User consent on certain Terms of service hash
-    function hashConsentWithSignature(
+    function _ensureCompanyAndTerms(bytes32 companyIdentityHash) internal view {
+        if (companyOwner[companyIdentityHash] == address(0))
+            revert CompanyNotRegistered();
+        if (latestTermsHash[companyIdentityHash] == bytes32(0)) revert TermsNotSet();
+    }
+
+    function _isConsentActive(
+        ConsentRecord storage record
+    ) internal view returns (bool) {
+        return
+            record.active &&
+            (record.expiresAt == 0 || block.timestamp < record.expiresAt);
+    }
+
+    function _validateConsentDuration(uint256 consentDurationDays) internal pure {
+        if (
+            consentDurationDays == 0 ||
+            consentDurationDays > MAX_CONSENT_DURATION_DAYS
+        ) revert InvalidConsentDuration();
+    }
+
+    function _writeConsent(
+        address user,
+        bytes32 companyIdentityHash,
         bytes32 termsHash,
-        bytes32 companyWebsiteHash,
-        bytes32 explanationHash,
+        uint256 consentDurationDays,
+        string calldata ipfsCid
+    ) internal {
+        _validateConsentDuration(consentDurationDays);
+
+        ConsentRecord storage record = userRecords[user][companyIdentityHash];
+        bool currentlyActive = _isConsentActive(record);
+
+        // After revocation, enforce a minimum waiting period before re-consent.
+        if (
+            !currentlyActive &&
+            record.revokedAt != 0 &&
+            block.timestamp < record.revokedAt + RECONSENT_COOLDOWN
+        ) revert ConsentCooldownActive();
+
+        if (currentlyActive && record.termsHash == termsHash)
+            revert ConsentAlreadyActive();
+
+        record.termsHash = termsHash;
+        record.timeStamp = block.timestamp;
+        record.revokedAt = 0;
+        record.expiresAt = block.timestamp + (consentDurationDays * 1 days);
+        record.active = true;
+        record.ipfsCid = ipfsCid;
+
+        emit ConsentGiven(
+            user,
+            companyIdentityHash,
+            termsHash,
+            block.timestamp,
+            ipfsCid
+        );
+
+        emit ConsentSaved(
+            user,
+            companyIdentityHash,
+            record.termsHash,
+            record.timeStamp,
+            record.ipfsCid
+        );
+    }
+
+    function revokeConsent(
+        bytes32 companyIdentityHash,
+        string calldata ipfsCid
+    ) external {
+        _validateCompanyIdentityHash(companyIdentityHash);
+        if (companyOwner[companyIdentityHash] == address(0)) revert CompanyNotRegistered();
+
+        ConsentRecord storage record = userRecords[msg.sender][companyIdentityHash];
+        if (!record.active) revert ConsentAlreadyRevoked();
+        if (record.expiresAt != 0 && block.timestamp >= record.expiresAt)
+            revert ConsentExpired();
+
+        record.active = false;
+        record.revokedAt = block.timestamp;
+        record.timeStamp = block.timestamp;
+        record.expiresAt = block.timestamp;
+        record.ipfsCid = ipfsCid;
+
+        emit ConsentRevoked(
+            msg.sender,
+            companyIdentityHash,
+            record.termsHash,
+            block.timestamp,
+            ipfsCid
+        );
+    }
+
+    // User consent is accepted only through EIP-712 signatures.
+    function giveConsentWithSignature(
+        bytes32 termsHash,
+        bytes32 companyIdentityHash,
+        uint256 consentDurationDays,
         string calldata ipfsCid,
         uint256 deadline,
         bytes calldata signature
     ) external {
         if (block.timestamp > deadline) revert SignatureExpired();
-        if (explanationHash == bytes32(0)) revert ExplanationHashCannotBeNull();
+        _validateCompanyIdentityHash(companyIdentityHash);
 
-        if (termsHash != latestTermsHash[companyWebsiteHash])
+        _ensureCompanyAndTerms(companyIdentityHash);
+
+        if (termsHash != latestTermsHash[companyIdentityHash])
             revert TermsNotLatest();
 
         uint256 nonce = nonces[msg.sender];
@@ -168,8 +311,8 @@ contract ConsentLedger {
         bytes32 digest = _hashConsent(
             msg.sender,
             termsHash,
-            companyWebsiteHash,
-            explanationHash,
+            companyIdentityHash,
+            consentDurationDays,
             nonce,
             deadline
         );
@@ -179,31 +322,29 @@ contract ConsentLedger {
 
         nonces[msg.sender]++;
 
-        ConsentRecord storage record = userRecords[msg.sender][
-            companyWebsiteHash
-        ];
-
-        record.oldTermsHash = record.newTermsHash;
-        record.newTermsHash = termsHash;
-        record.timeStamp = block.timestamp;
-        record.explanationHash = explanationHash;
-        record.ipfsCid = ipfsCid;
-
-        emit ConsentSaved(
+        _writeConsent(
             msg.sender,
-            companyWebsiteHash,
-            record.oldTermsHash,
-            record.newTermsHash,
-            record.timeStamp,
-            record.explanationHash,
-            record.ipfsCid
+            companyIdentityHash,
+            termsHash,
+            consentDurationDays,
+            ipfsCid
         );
     }
 
     //Getter function consentRecord
     function getUserCompanyHash(
-        bytes32 companyWebsiteHash
+        bytes32 companyIdentityHash
     ) external view returns (ConsentRecord memory) {
-        return userRecords[msg.sender][companyWebsiteHash];
+        return userRecords[msg.sender][companyIdentityHash];
+    }
+
+    function hasActiveConsent(
+        address user,
+        bytes32 companyIdentityHash
+    ) external view returns (bool) {
+        ConsentRecord storage record = userRecords[user][companyIdentityHash];
+        return
+            record.active &&
+            (record.expiresAt == 0 || block.timestamp < record.expiresAt);
     }
 }
