@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Wallet,CircleCheck, LogOut, ChevronDown, LogIn } from "lucide-react";
-import { useNavigate, Link, NavLink } from "react-router-dom";
+import { Wallet, CircleCheck, LogOut, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   useWeb3AuthConnect,
   useWeb3AuthDisconnect,
-  useWeb3AuthUser,
 } from "@web3auth/modal/react";
 import { useAccount } from "wagmi";
 
-function WalletComponent() {
+function WalletComponent({ tone = "company" }) {
   const  navigate  = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const isConsumer = tone === "consumer";
 
   const {
     connect,
@@ -27,8 +27,15 @@ function WalletComponent() {
     error: disconnectError,
   } = useWeb3AuthDisconnect();
 
-  const { userInfo } = useWeb3AuthUser();
   const { address } = useAccount();
+
+  const accent = "#7fa4c4";
+  const connectFrom = "#7fa4c4";
+  const connectTo = "#5a8aac";
+  const connectHoverFrom = "#8fb4d4";
+  const connectHoverTo = "#6a9abc";
+  const dropdownBgClass =
+    "absolute right-0 mt-2 w-56 border rounded-lg shadow-xl overflow-hidden z-50 backdrop-blur-md bg-gradient-to-b from-[#14171d]/90 to-[#0f1219]/90";
 
   const handleLogout = async () => {
     try {
@@ -59,7 +66,11 @@ function WalletComponent() {
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#7fa4c4]/10 hover:bg-[#7fa4c4]/20 border border-[#7fa4c4]/30 rounded-lg transition-all"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all"
+                  style={{
+                    backgroundColor: `${accent}1a`,
+                    border: `1px solid ${accent}4d`,
+                  }}
                 >
                   <Wallet className="text-gray-300"/>
                   <span className="text-sm text-gray-300">
@@ -71,17 +82,20 @@ function WalletComponent() {
 
                 {/* Dropdown Menu */}
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#12151b]/95 border border-[#7fa4c4]/40 rounded-lg shadow-xl overflow-hidden z-50 backdrop-blur-md bg-gradient-to-b from-[#14171d]/90 to-[#0f1219]/90">
-                    <div className="px-4 py-3 border-b border-[#7fa4c4]/30 bg-[#7fa4c4]/5">
+                  <div
+                    className={dropdownBgClass}
+                    style={{ borderColor: `${accent}66` }}
+                  >
+                    <div className="px-4 py-3 border-b rounded-t-lg" style={{ borderColor: `${accent}4d`, backgroundColor: `${accent}0d` }}>
                       <p className="text-xs text-white/50 mb-1">Connected as</p>
                       <p className="text-sm text-white font-mono break-all">
                         {address}
                       </p>
                     </div>
 
-                    <div className="px-4 py-3 border-b border-[#7fa4c4]/30">
+                    <div className="px-4 py-3 border-b" style={{ borderColor: `${accent}4d` }}>
                       <p className="text-xs text-white/50 mb-1">Network</p>
-                      <p className="text-sm text-[#7fa4c4] capitalize">
+                      <p className="text-sm capitalize" style={{ color: accent }}>
                         {connectorName || "Web3Auth"}
                       </p>
                     </div>
@@ -96,7 +110,7 @@ function WalletComponent() {
                     </button>
 
                     {disconnectError && (
-                      <div className="px-4 py-2 bg-red-500/10 text-red-400 text-xs border-t border-[#7fa4c4]/30">
+                      <div className="px-4 py-2 bg-red-500/10 text-red-400 text-xs border-t" style={{ borderColor: `${accent}4d` }}>
                         {disconnectError.message}
                       </div>
                     )}
@@ -104,11 +118,20 @@ function WalletComponent() {
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => connect()}
-                disabled={connectLoading}
-                className="px-6 py-2 bg-gradient-to-r from-[#7fa4c4] to-[#5a8aac] hover:from-[#8fb4d4] hover:to-[#6a9abc] text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
+                <button
+                  onClick={() => connect()}
+                  disabled={connectLoading}
+                  className="px-6 py-2 text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  style={{
+                    background: `linear-gradient(to right, ${connectFrom}, ${connectTo})`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `linear-gradient(to right, ${connectHoverFrom}, ${connectHoverTo})`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = `linear-gradient(to right, ${connectFrom}, ${connectTo})`;
+                  }}
+                >
                 <LogIn className="w-4 h-4" />
                 {connectLoading ? "Connecting..." : "Connect Wallet"}
               </button>

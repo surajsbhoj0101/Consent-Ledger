@@ -9,20 +9,20 @@ import { WagmiProvider } from "@web3auth/modal/react/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import App from "./App";
-import RegisterCompany from "./pages/Company_Pages/RegisterCompany";
-import RegisterConsumer from "./pages/User_Pages/RegisterConsumer";
-import CompanyDashboard from "./pages/Company_Pages/CompanyDashboard";
-import ConsentPurposes from "./pages/Company_Pages/ConsentPurposes";
-import ConsentRequest from "./pages/Company_Pages/ConsentRequest";
-import ManageUsers from "./pages/Company_Pages/ManageUsers";
-import CompanyProfile from "./pages/Company_Pages/CompanyProfile";
-import CompanySettings from "./pages/Company_Pages/CompanySettings";
-import AuditLogs from "./pages/Company_Pages/AuditLogs";
-import ConsumerDashboard from "./pages/User_Pages/ConsumerDashboard";
-import MyConsents from "./pages/User_Pages/MyConsents";
-import ConsumerHistory from "./pages/User_Pages/ConsumerHistory";
-import ConsumerProfile from "./pages/User_Pages/ConsumerProfile";
-import ConsumerSettings from "./pages/User_Pages/ConsumerSettings";
+import RegisterCompany from "./pages/company/RegisterCompany";
+import RegisterConsumer from "./pages/consumer/RegisterConsumer";
+import CompanyDashboard from "./pages/company/CompanyDashboard";
+import ConsentPurposes from "./pages/company/ConsentPurposes";
+import ConsentRequest from "./pages/company/ConsentRequest";
+import ManageUsers from "./pages/company/ManageUsers";
+import CompanyProfile from "./pages/company/CompanyProfile";
+import CompanySettings from "./pages/company/CompanySettings";
+import AuditLogs from "./pages/company/AuditLogs";
+import ConsumerDashboard from "./pages/consumer/ConsumerDashboard";
+import MyConsents from "./pages/consumer/MyConsents";
+import ConsumerHistory from "./pages/consumer/ConsumerHistory";
+import ConsumerProfile from "./pages/consumer/ConsumerProfile";
+import ConsumerSettings from "./pages/consumer/ConsumerSettings";
 
 const queryClient = new QueryClient();
 

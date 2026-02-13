@@ -1,47 +1,66 @@
-import React, { useState, useEffect } from 'react'
-import { Building2, Mail, Phone, MapPin, Globe } from 'lucide-react'
-import axios from 'axios'
-import { useNavigate } from 'react-router'
+import React, { useState, useEffect } from "react";
+import { Building2, Mail, Phone, MapPin, Globe } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router";
 
 function RegisterCompany() {
   const [formData, setFormData] = useState({
-    companyName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    country: '',
-    website: '',
-    industry: '',
-    description: ''
-  })
+    companyName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    country: "",
+    website: "",
+    industry: "",
+    description: "",
+  });
+  const [isEmailLocked, setIsEmailLocked] = useState(false);
 
-  const [notice, setNotice] = useState()
+  const [notice, setNotice] = useState();
   const [redNotice, setRedNotice] = useState(false);
   const navigate = useNavigate();
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
-  const fields = ['companyName', 'email', 'phone', 'address', 'website', 'industry', 'description']
-  const filledFields = fields.filter(field => formData[field].trim() !== '').length
-  const requiredFields = ['companyName', 'email', 'website', 'industry', 'website'];
-  const filledRequired = requiredFields.filter(field => formData[field].trim() !== '').length
-  const progressPercentage = Math.round((filledFields / fields.length) * 100)
+  const fields = [
+    "companyName",
+    "email",
+    "phone",
+    "address",
+    "website",
+    "industry",
+    "description",
+  ];
+  const filledFields = fields.filter(
+    (field) => formData[field].trim() !== "",
+  ).length;
+  const requiredFields = [
+    "companyName",
+    "email",
+    "website",
+    "industry",
+    "website",
+  ];
+  const filledRequired = requiredFields.filter(
+    (field) => formData[field].trim() !== "",
+  ).length;
+  const progressPercentage = Math.round((filledFields / fields.length) * 100);
 
-  const robotoStyle = { fontFamily: "Roboto, sans-serif" }
-  const orbitronStyle = { fontFamily: "Orbitron, sans-serif" }
+  const robotoStyle = { fontFamily: "Roboto, sans-serif" };
+  const orbitronStyle = { fontFamily: "Orbitron, sans-serif" };
 
   const handleSubmitCompanyDetails = async () => {
     if (filledRequired != requiredFields.length) {
       setRedNotice(true);
-      setNotice("Required fields missing")
+      setNotice("Required fields missing");
       return;
     }
 
@@ -58,7 +77,7 @@ function RegisterCompany() {
       const response = await axios.put(
         `http://localhost:5000/api/company/edit-company-details`,
         payload,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (!response.data?.success) {
@@ -68,13 +87,13 @@ function RegisterCompany() {
       setRedNotice(false);
       setNotice("Company details updated successfully");
       setTimeout(() => {
-        navigate('/company/dashboard')
+        navigate("/company/dashboard");
       }, 2000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(
           "API Error:",
-          error.response?.data?.message || error.message
+          error.response?.data?.message || error.message,
         );
       } else {
         console.error("Unexpected error:", error);
@@ -82,71 +101,82 @@ function RegisterCompany() {
       setTimeout(() => {
         setRedNotice(true);
         setNotice("an error occured");
-
       }, 2000);
     }
   };
 
   async function checkIfAuthorized() {
     try {
-      const res = await axios.get('http://localhost:5000/api/auth/validate', {
-        withCredentials: true
-      })
+      const res = await axios.get("http://localhost:5000/api/auth/validate", {
+        withCredentials: true,
+      });
 
       if (!res.data.data) {
-        navigate('/')
+        navigate("/");
       }
 
-      if (res.data.data?.role != 'company') {
+      if (res.data.data?.role != "company") {
         setTimeout(() => {
-          navigate('/')
+          navigate("/");
         }, 2000);
         setRedNotice(true);
         setNotice("You are not Registered !!");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
 
       setTimeout(() => {
-        console.log("Nav")
-        navigate('/')
+        console.log("Nav");
+        navigate("/");
       }, 2000);
       setRedNotice(true);
       setNotice("You are not Registered !!");
-
     }
   }
 
-  async function checkIfAlreadyRegistered (){
+  async function checkIfAlreadyRegistered() {
     try {
-      const res =  await axios.get('http://localhost:5000/api/company/check-registered',{
-        withCredentials: true
-      });
+      const res = await axios.get(
+        "http://localhost:5000/api/company/check-registered",
+        {
+          withCredentials: true,
+        },
+      );
 
-      if(res.data.isRegister){
-        navigate('/company/dashboard');
+      if (res.data.isRegister) {
+        navigate("/company/dashboard");
       }
 
+      const existingEmail = res.data?.email?.trim();
+
+      if (existingEmail) {
+        setFormData((prev) => ({
+          ...prev,
+          email: existingEmail,
+        }));
+        setIsEmailLocked(true);
+      }
+      console.log(res.data.email);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   useEffect(() => {
-    checkIfAuthorized()
-    checkIfAlreadyRegistered()
-  }, [])
+    checkIfAuthorized();
+    checkIfAlreadyRegistered();
+  }, []);
 
   const removeNotice = () => {
-    setNotice("")
-    setRedNotice(false)
-  }
-
-
+    setNotice("");
+    setRedNotice(false);
+  };
 
   return (
-
-    <div style={robotoStyle} className='relative min-h-screen overflow-hidden bg-[#282d36] py-12 px-4'>
+    <div
+      style={robotoStyle}
+      className="relative min-h-screen overflow-hidden bg-[#282d36] py-12 px-4"
+    >
       <div className="absolute inset-0 bg-[#12151b]" />
       {notice && (
         <div className="fixed top-4 right-4 z-50">
@@ -155,15 +185,16 @@ function RegisterCompany() {
             className={`
               px-4 py-2 rounded-lg shadow-lg cursor-pointer
               backdrop-blur-md transition-all text-white
-              ${redNotice
-                        ? "bg-red-500/20 border border-red-500/40 text-red-300"
-                        : "bg-teal-400/20 border border-teal-400/40 text-teal-300"}
+              ${
+                redNotice
+                  ? "bg-red-500/20 border border-red-500/40 text-red-300"
+                  : "bg-teal-400/20 border border-teal-400/40 text-teal-300"
+              }
             `}
           >
             {notice}
           </div>
         </div>
-
       )}
 
       {/* Background gradients */}
@@ -184,7 +215,10 @@ function RegisterCompany() {
             </div>
           </div>
 
-          <h1 style={orbitronStyle} className="text-3xl md:text-4xl font-semibold text-white mb-2">
+          <h1
+            style={orbitronStyle}
+            className="text-3xl md:text-4xl font-semibold text-white mb-2"
+          >
             Company Details
           </h1>
           <p className="text-white/50 text-sm">
@@ -204,8 +238,12 @@ function RegisterCompany() {
         >
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-white/70">Form Completion</span>
-              <span className="text-sm font-semibold text-[#7fa4c4]">{progressPercentage}%</span>
+              <span className="text-sm font-medium text-white/70">
+                Form Completion
+              </span>
+              <span className="text-sm font-semibold text-[#7fa4c4]">
+                {progressPercentage}%
+              </span>
             </div>
             <div className="w-full h-2 rounded-full bg-white/10 border border-[#7fa4c4]/20 overflow-hidden">
               <div
@@ -215,10 +253,10 @@ function RegisterCompany() {
             </div>
             <p className="text-xs text-white/40 mt-2">
               {filledFields} of {fields.length} fields completed
-              {filledRequired < requiredFields.length && ` • ${requiredFields.length - filledRequired} required field(s) remaining`}
+              {filledRequired < requiredFields.length &&
+                ` • ${requiredFields.length - filledRequired} required field(s) remaining`}
             </p>
           </div>
-
 
           {/* Company Name */}
           <div>
@@ -248,22 +286,29 @@ function RegisterCompany() {
                 <Mail size={16} className="inline mr-2" />
                 Email Address <span className="text-red-400">*</span>
               </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="company@example.com"
-                className="
+                <input
+                  type="email"
+                  name="email"
+                  readOnly={isEmailLocked}
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  placeholder="company@example.com"
+                  className={`
                     w-full px-4 py-3 rounded-lg
                     bg-white/5 border border-[#7fa4c4]/30
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
                     transition-all duration-300
-                  "
-              />
-            </div>
+                    ${isEmailLocked ? "opacity-80 cursor-not-allowed" : ""}
+                  `}
+                />
+                {isEmailLocked && (
+                  <p className="text-xs text-white/50 mt-2">
+                    Email is linked to your login and cannot be edited here.
+                  </p>
+                )}
+              </div>
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">
                 <Phone size={16} className="inline mr-2" />
@@ -346,13 +391,27 @@ function RegisterCompany() {
                   transition-all duration-300
                 "
             >
-              <option value="" className=" bg-[#282d36] ">Select Industry</option>
-              <option value="Technology" className="bg-[#282d36] ">Technology</option>
-              <option value="Healthcare" className="bg-[#282d36]">Healthcare</option>
-              <option value="Finance" className="bg-[#282d36]">Finance</option>
-              <option value="Retail" className="bg-[#282d36]">Retail</option>
-              <option value="Manufacturing" className="bg-[#282d36]">Manufacturing</option>
-              <option value="Other" className="bg-[#282d36]">Other</option>
+              <option value="" className=" bg-[#282d36] ">
+                Select Industry
+              </option>
+              <option value="Technology" className="bg-[#282d36] ">
+                Technology
+              </option>
+              <option value="Healthcare" className="bg-[#282d36]">
+                Healthcare
+              </option>
+              <option value="Finance" className="bg-[#282d36]">
+                Finance
+              </option>
+              <option value="Retail" className="bg-[#282d36]">
+                Retail
+              </option>
+              <option value="Manufacturing" className="bg-[#282d36]">
+                Manufacturing
+              </option>
+              <option value="Other" className="bg-[#282d36]">
+                Other
+              </option>
             </select>
           </div>
 
@@ -393,7 +452,7 @@ function RegisterCompany() {
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
           >
-            {submitted ? 'Details Saved!' : 'Save Company Details'}
+            {submitted ? "Details Saved!" : "Save Company Details"}
           </button>
 
           {submitted && (
@@ -404,7 +463,7 @@ function RegisterCompany() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default RegisterCompany;

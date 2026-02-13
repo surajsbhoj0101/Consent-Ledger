@@ -301,6 +301,10 @@ function CompanyProfile() {
         setRedNotice(false);
         setNotice(res.data?.message || "Email verified successfully");
         setOtpOpen(false);
+        setFormData((prev)=>({
+          ...prev,
+          isVerified:true
+        }))
         setOtp("");
         resetCooldownTime();
         return;

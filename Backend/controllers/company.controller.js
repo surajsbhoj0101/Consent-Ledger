@@ -8,6 +8,58 @@ import path from "path";
 import redis from "../config/redis.js";
 import { sendMail } from "../services/sendmail.js";
 
+function getOtpEmailHtml({ otp }) {
+  const currentYear = new Date().getFullYear();
+
+  return `
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Consent Ledger OTP</title>
+    </head>
+    <body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#10243b;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:24px 0;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #d8e4f2;border-radius:14px;overflow:hidden;">
+              <tr>
+                <td style="padding:20px 24px;background:linear-gradient(90deg,#7fa4c4,#5f88ad);color:#ffffff;">
+                  <h1 style="margin:0;font-size:20px;line-height:1.3;">Consent Ledger</h1>
+                  <p style="margin:6px 0 0;font-size:13px;opacity:.95;">Email Verification</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:24px;">
+                  <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#29496a;">
+                    Use the OTP below to verify your email address.
+                  </p>
+                  <div style="margin:18px 0 16px;padding:14px 16px;border:1px dashed #7fa4c4;border-radius:12px;background:#f7fbff;text-align:center;">
+                    <span style="display:inline-block;font-size:30px;line-height:1;letter-spacing:10px;font-weight:700;color:#13365a;">${otp}</span>
+                  </div>
+                  <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#456789;">
+                    This OTP is valid for <strong>2 minutes</strong>.
+                  </p>
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#6a8098;">
+                    If you did not request this OTP, please ignore this email.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:14px 24px;border-top:1px solid #e7eef7;background:#fbfdff;font-size:11px;color:#6a8098;">
+                  © ${currentYear} Consent Ledger
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+  `;
+}
+
 export const editCompanyDetails = async (req, res) => {
   try {
     const { id, role } = req;
@@ -161,10 +213,25 @@ export const checkRegister = async (req, res) => {
       });
     }
     const data = await Company.findOne({ userId: id });
+    console.log(data);
 
-    res.status(200).json({ isRegister: data.isRegistered });
+    if (!data) {
+      return res.status(200).json({
+        isRegister: false,
+        email: "",
+      });
+    }
+    console.log(data)
+    return res.status(200).json({
+      isRegister: data.isRegistered,
+      email: data.basicInformation?.email || "",
+    });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -663,6 +730,7 @@ export const sendOtp = async (req, res) => {
       to: email,
       subject: "Email Verification OTP",
       text: `Your OTP is ${otp}. Valid for 2 minutes.`,
+      html: getOtpEmailHtml({ otp }),
     };
 
     const isSent = await sendMail(mailOptions);

@@ -224,7 +224,7 @@ function ConsumerProfile() {
                   </p>
                 </div>
                 <div className="z-50 md:block">
-                  <Wallet />
+                  <Wallet tone="consumer" />
                 </div>
               </div>
             </div>

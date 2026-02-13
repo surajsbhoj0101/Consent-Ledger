@@ -47,12 +47,12 @@ function Sidebar({ role }) {
     },
     {
       name: "Audit Logs",
-      path: "#",
+      path: "/company/audit-logs",
       icon: <BookOpenText />,
     },
     {
       name: "Settings",
-      path: "/settings",
+      path: "/company/settings",
       icon: <Settings />,
     },
   ];
@@ -106,16 +106,49 @@ function Sidebar({ role }) {
     return location.pathname === path;
   };
 
+  const sidebarBorderClass = isConsumer
+    ? "border-r border-[rgba(127,164,196,0.15)]"
+    : "border-r border-[rgba(127,164,196,0.15)]";
+
+  const accentLineClass = isConsumer
+    ? "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30"
+    : "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30";
+
+  const headerBorderClass = isConsumer
+    ? "flex justify-between items-center px-4 py-3 border-b border-[rgba(127,164,196,0.1)]"
+    : "flex justify-between items-center px-4 py-3 border-b border-[rgba(127,164,196,0.1)]";
+
+  const toggleButtonClass = isConsumer
+    ? "text-white flex items-center justify-center hover:text-[#9db5d6] transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95"
+    : "text-white flex items-center justify-center hover:text-[#9db5d6] transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95";
+
+  const activeNavClass = isConsumer
+    ? "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-[#7fa4c4] shadow-lg shadow-[rgba(127,164,196,0.2)]"
+    : "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-[#7fa4c4] shadow-lg shadow-[rgba(127,164,196,0.2)]";
+
+  const inactiveNavClass = isConsumer
+    ? "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-[#7fa4c4]"
+    : "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-[#7fa4c4]";
+
+  const activeBgClass = isConsumer
+    ? "absolute inset-0 bg-gradient-to-r from-[#7fa4c4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+    : "absolute inset-0 bg-gradient-to-r from-[#7fa4c4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity";
+
+  const activeIconClass = isConsumer ? "text-[#7fa4c4]" : "text-[#7fa4c4]";
+  const sidebarBgClass = isConsumer
+    ? "bg-gradient-to-b from-[rgba(30,41,59,0.55)] via-[rgba(20,30,48,0.45)] to-[rgba(15,23,42,0.35)]"
+    : "bg-gradient-to-b from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.3)]";
+
   return (
     <div
       style={robotoStyle}
-      className={`relative h-screen bg-gradient-to-b  from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.3)] backdrop-blur-md border-r border-[rgba(127,164,196,0.15)] text-white transition-all duration-300 overflow-hidden ${isOpen?"w-ful" : "w-20"} md:${isOpen ? "w-64" : "w-20"}`}
+      className={`relative h-screen ${sidebarBgClass} backdrop-blur-md ${sidebarBorderClass} text-white transition-all duration-300 overflow-hidden ${isOpen ? "w-full md:w-64" : "w-20 md:w-20"}`}
     >
       {/* Glowing accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30" />
+      <div className={accentLineClass} />
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-3 border-b border-[rgba(127,164,196,0.1)]">
+      <div className={headerBorderClass}>
         <Link to="/" className={`${!isOpen && "hidden"}`}>
           <span className="hidden md:block text-lg tracking-wide text-white/70 font-semibold">
             CONSENT LEDGER
@@ -123,7 +156,9 @@ function Sidebar({ role }) {
         </Link>
         <button
           onClick={toggleSidebar}
-          className="text-white flex items-center justify-center hover:text-[#9db5d6] transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95"
+          className={toggleButtonClass}
+          title="Toggle sidebar"
+          aria-label="Toggle sidebar"
         >
           {isOpen ? <PanelRightOpen size={20} /> : <PanelLeftOpen size={20} />}
         </button>
@@ -138,17 +173,17 @@ function Sidebar({ role }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden ${
                   isActive(item.path)
-                    ? "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-[#7fa4c4] shadow-lg shadow-[rgba(127,164,196,0.2)]"
-                    : "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-[#7fa4c4]"
+                    ? activeNavClass
+                    : inactiveNavClass
                 } ${!isOpen && "justify-center px-0 py-3"}`}
               >
                 {/* Animated background */}
                 {isActive(item.path) && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#7fa4c4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className={activeBgClass} />
                 )}
 
                 <span
-                  className={`text-lg flex-shrink-0 transition-transform duration-200 ${isActive(item.path) ? "text-[#7fa4c4]" : "group-hover:scale-110"}`}
+                  className={`text-lg flex-shrink-0 transition-transform duration-200 ${isActive(item.path) ? activeIconClass : "group-hover:scale-110"}`}
                 >
                   {item.icon}
                 </span>

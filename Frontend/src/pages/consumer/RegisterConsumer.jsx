@@ -17,6 +17,7 @@ function RegisterConsumer() {
   const [errors, setErrors] = useState({})
   const [notice, setNotice] = useState()
   const [redNotice, setRedNotice] = useState(false);
+  const [isEmailLocked, setIsEmailLocked] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -65,10 +66,11 @@ function RegisterConsumer() {
         console.error("Update failed:", response.data.message);
         return;
       }
+      setSubmitted(true);
       setRedNotice(false);
-      setNotice("Cosumer details updated successfully");
+      setNotice("Consumer details updated successfully");
       setTimeout(() => {
-
+        navigate("/consumer/dashboard");
       }, 2000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -117,8 +119,35 @@ function RegisterConsumer() {
     }
   }
 
+  async function checkIfAlreadyRegistered() {
+    try {
+      const res = await axios.get("http://localhost:5000/api/consumer/profile", {
+        withCredentials: true,
+      });
+
+      const consumer = res.data?.consumer;
+      if (!consumer) return;
+
+      if (consumer.isRegistered) {
+        navigate("/consumer/dashboard");
+      }
+
+      const existingEmail = consumer?.basicInformation?.email?.trim();
+      if (existingEmail) {
+        setFormData((prev) => ({
+          ...prev,
+          email: existingEmail,
+        }));
+        setIsEmailLocked(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     checkIfAuthorized()
+    checkIfAlreadyRegistered()
   }, [])
 
   const removeNotice = () => {
@@ -139,7 +168,7 @@ function RegisterConsumer() {
               backdrop-blur-md shadow-lg transition-all
               ${redNotice
                 ? "bg-red-500/20 border border-red-400/40 text-red-300"
-                : "bg-[#7fa4c4]/20 border border-[#7fa4c4]/40 text-[#e9d5ff]"}
+                : "bg-[#7fa4c4]/20 border border-[#7fa4c4]/40 text-[#b0c5db]"}
             `}
           >
             {notice}
@@ -149,7 +178,7 @@ function RegisterConsumer() {
 
 
       {/* Background gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.08),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.06),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.05),transparent_70%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.95))]" />
 
       <div className="relative z-10 max-w-2xl mx-auto">
@@ -161,7 +190,7 @@ function RegisterConsumer() {
               <User
                 size={100}
                 strokeWidth={1.1}
-                className="relative text-[#e9d5ff] drop-shadow-[0_0_14px_rgba(167,139,250,0.6)]"
+                className="relative text-[#e9d5ff] drop-shadow-[0_0_14px_rgba(127,164,196,0.6)]"
               />
             </div>
           </div>
@@ -179,7 +208,7 @@ function RegisterConsumer() {
             group relative rounded-2xl
             bg-white/3 backdrop-blur-md p-8 md:p-10
             border border-[#7fa4c4]/40
-            hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(167,139,250,0.35)]
+            hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.35)]
             transition-all duration-500
           "
         >
@@ -282,6 +311,7 @@ function RegisterConsumer() {
                   type="email"
                   name="email"
                   value={formData.email}
+                  readOnly={isEmailLocked}
                   onChange={handleChange}
                   required
                   placeholder="your@example.com"
@@ -292,8 +322,14 @@ function RegisterConsumer() {
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
                     border-[#7fa4c4]/30 focus:border-[#7fa4c4]
+                    ${isEmailLocked ? "opacity-80 cursor-not-allowed" : ""}
                   `}
                 />
+                {isEmailLocked && (
+                  <p className="text-xs text-white/50 mt-2">
+                    Email is linked to your login and cannot be edited here.
+                  </p>
+                )}
                 {errors.email && (
                   <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
                     <AlertCircle size={12} /> {errors.email}
@@ -384,7 +420,7 @@ function RegisterConsumer() {
                 hover:from-[#7fa4c4] hover:to-[#6b8fb0]
                 text-white font-medium text-sm
                 shadow-lg transition-all duration-300
-                hover:shadow-[0_0_30px_rgba(167,139,250,0.5)]
+                hover:shadow-[0_0_30px_rgba(127,164,196,0.5)]
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none
               "
             >

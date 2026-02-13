@@ -26,6 +26,8 @@ export const register = async (req, res) => {
       });
     }
 
+    const authEmail = (decoded?.email || "").trim().toLowerCase();
+
     let user = await User.findOne({
       "wallets.address": walletAddress.toLowerCase(),
     });
@@ -33,9 +35,6 @@ export const register = async (req, res) => {
     if (!user) {
       user = await User.create({
         role: role,
-        email: decoded?.email || "",
-        name: decoded?.name || "",
-        profileImage: decoded?.picture || "",
         wallets: [
           {
             address: walletAddress.toLowerCase(),
@@ -48,10 +47,16 @@ export const register = async (req, res) => {
       if (role === "company") {
         await Company.create({
           userId: user._id.toString(),
+          basicInformation: {
+            email: authEmail,
+          },
         });
       } else {
         await Consumer.create({
           userId: user._id.toString(),
+          basicInformation: {
+            email: authEmail,
+          },
         });
       }
     }

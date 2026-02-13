@@ -137,8 +137,7 @@ function App() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-10 text-sm font-medium">
-            {["docs", "about"].map((path) => (
+          <div className="flex items-center gap-4 md:gap-10 text-sm font-medium">            {["docs", "about"].map((path) => (
               <NavLink
                 key={path}
                 to={`/${path}`}
