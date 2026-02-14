@@ -175,9 +175,9 @@ function RegisterCompany() {
   return (
     <div
       style={robotoStyle}
-      className="relative min-h-screen overflow-hidden bg-[#282d36] py-12 px-4"
+      className="relative min-h-screen overflow-hidden bg-panel py-12 px-4"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       {notice && (
         <div className="fixed top-4 right-4 z-50">
           <div
@@ -206,7 +206,7 @@ function RegisterCompany() {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute h-24 w-24 rounded-full bg-[#7fa4c4]/25 blur-3xl" />
+              <div className="absolute h-24 w-24 rounded-full bg-brand/25 blur-3xl" />
               <Building2
                 size={100}
                 strokeWidth={1.1}
@@ -231,7 +231,7 @@ function RegisterCompany() {
             group relative rounded-2xl
             space-y-4
             bg-white/3 backdrop-blur-md p-8 md:p-10
-            border border-[#7fa4c4]/40
+            border border-brand/40
             hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.35)]
             transition-all duration-500
           "
@@ -241,13 +241,13 @@ function RegisterCompany() {
               <span className="text-sm font-medium text-white/70">
                 Form Completion
               </span>
-              <span className="text-sm font-semibold text-[#7fa4c4]">
+              <span className="text-sm font-semibold text-brand">
                 {progressPercentage}%
               </span>
             </div>
-            <div className="w-full h-2 rounded-full bg-white/10 border border-[#7fa4c4]/20 overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-white/10 border border-brand/20 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#7fa4c4] to-[#5f88ad] rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-brand to-brand-3 rounded-full transition-all duration-500"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -272,9 +272,9 @@ function RegisterCompany() {
               placeholder="Enter your company name"
               className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                 "
             />
@@ -296,9 +296,9 @@ function RegisterCompany() {
                   placeholder="company@example.com"
                   className={`
                     w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#7fa4c4]/30
+                    bg-white/5 border border-brand/30
                     text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                    focus:bg-white/8 focus:border-brand focus:outline-none
                     transition-all duration-300
                     ${isEmailLocked ? "opacity-80 cursor-not-allowed" : ""}
                   `}
@@ -322,9 +322,9 @@ function RegisterCompany() {
                 placeholder="+1 (555) 123-4567"
                 className="
                     w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#7fa4c4]/30
+                    bg-white/5 border border-brand/30
                     text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                    focus:bg-white/8 focus:border-brand focus:outline-none
                     transition-all duration-300
                   "
               />
@@ -344,9 +344,9 @@ function RegisterCompany() {
               placeholder="Street address"
               className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                 "
             />
@@ -366,9 +366,9 @@ function RegisterCompany() {
               placeholder="https://example.com"
               className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                 "
             />
@@ -385,31 +385,31 @@ function RegisterCompany() {
               onChange={handleChange}
               className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                 "
             >
-              <option value="" className=" bg-[#282d36] ">
+              <option value="" className=" bg-panel ">
                 Select Industry
               </option>
-              <option value="Technology" className="bg-[#282d36] ">
+              <option value="Technology" className="bg-panel ">
                 Technology
               </option>
-              <option value="Healthcare" className="bg-[#282d36]">
+              <option value="Healthcare" className="bg-panel">
                 Healthcare
               </option>
-              <option value="Finance" className="bg-[#282d36]">
+              <option value="Finance" className="bg-panel">
                 Finance
               </option>
-              <option value="Retail" className="bg-[#282d36]">
+              <option value="Retail" className="bg-panel">
                 Retail
               </option>
-              <option value="Manufacturing" className="bg-[#282d36]">
+              <option value="Manufacturing" className="bg-panel">
                 Manufacturing
               </option>
-              <option value="Other" className="bg-[#282d36]">
+              <option value="Other" className="bg-panel">
                 Other
               </option>
             </select>
@@ -428,9 +428,9 @@ function RegisterCompany() {
               rows="4"
               className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                   resize-none
                 "
@@ -444,8 +444,8 @@ function RegisterCompany() {
             disabled={filledRequired < requiredFields.length}
             className="
                 w-full mt-8 py-3 px-6 rounded-xl
-                bg-gradient-to-r from-[#7fa4c4]/65 to-[#5f88ad]/65
-                hover:from-[#7fa4c4] hover:to-[#5f88ad]
+                bg-gradient-to-r from-brand/65 to-brand-3/65
+                hover:from-brand hover:to-brand-3
                 text-white font-medium text-sm
                 shadow-lg transition-all duration-300
                 hover:shadow-[0_0_30px_rgba(127,164,196,0.5)]

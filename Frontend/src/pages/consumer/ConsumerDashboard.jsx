@@ -80,9 +80,9 @@ function ConsumerDashboard() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.95))]" />
 
@@ -92,13 +92,13 @@ function ConsumerDashboard() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Dashboard
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Stay in control of your data permissions
                   </p>
                 </div>
@@ -117,18 +117,18 @@ function ConsumerDashboard() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs uppercase tracking-wide text-[#9db5d6]">
+                        <p className="text-xs uppercase tracking-wide text-brand-muted">
                           {stat.title}
                         </p>
                         <p className="text-3xl font-bold text-white mt-2">
                           {stat.value}
                         </p>
                       </div>
-                      <div className="p-3 rounded-xl bg-[#7fa4c4]/15 text-[#7fa4c4]">
+                      <div className="p-3 rounded-xl bg-brand/15 text-brand">
                         {stat.icon}
                       </div>
                     </div>
-                    <p className="text-xs text-[#9db5d6] mt-4">
+                    <p className="text-xs text-brand-muted mt-4">
                       {stat.trend}
                     </p>
                   </div>
@@ -138,12 +138,12 @@ function ConsumerDashboard() {
               <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl p-6 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <Clock3 size={18} className="text-[#7fa4c4]" />
+                    <Clock3 size={18} className="text-brand" />
                     <h2 className="text-white font-semibold text-lg">
                       Recent Activity
                     </h2>
                   </div>
-                  <span className="text-xs text-[#9db5d6]">Updated live</span>
+                  <span className="text-xs text-brand-muted">Updated live</span>
                 </div>
 
                 <div className="space-y-3">
@@ -156,11 +156,11 @@ function ConsumerDashboard() {
                         <p className="text-sm text-white font-medium">
                           {item.title}
                         </p>
-                        <p className="text-xs text-[#9db5d6]">
+                        <p className="text-xs text-brand-muted">
                           {item.detail}
                         </p>
                       </div>
-                      <span className="text-xs text-[#9db5d6]">
+                      <span className="text-xs text-brand-muted">
                         {item.time}
                       </span>
                     </div>

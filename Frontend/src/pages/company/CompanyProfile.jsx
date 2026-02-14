@@ -334,9 +334,9 @@ function CompanyProfile() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
 
@@ -349,13 +349,13 @@ function CompanyProfile() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Company Profile
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Keep your organization details up to date
                   </p>
                 </div>
@@ -371,7 +371,7 @@ function CompanyProfile() {
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Profile Details
                   </h2>
-                  <p className="text-[#9db5d6] text-sm mt-1">
+                  <p className="text-brand-muted text-sm mt-1">
                     Email cannot be edited once set
                   </p>
                 </div>
@@ -379,8 +379,8 @@ function CompanyProfile() {
 
               <div className="mb-8 rounded-xl border border-[rgba(127,164,196,0.15)] bg-[rgba(15,23,42,0.4)] p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-sm text-[#9db5d6]">
-                    <ShieldCheck size={16} className="text-[#7fa4c4]" />
+                  <div className="flex items-center gap-2 text-sm text-brand-muted">
+                    <ShieldCheck size={16} className="text-brand" />
                     <span>Profile completion</span>
                   </div>
                   <span className="text-sm font-semibold text-white">
@@ -389,11 +389,11 @@ function CompanyProfile() {
                 </div>
                 <div className="h-2 w-full rounded-full bg-[rgba(127,164,196,0.15)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] transition-all duration-300"
+                    className="h-full rounded-full bg-gradient-to-r from-brand to-brand-2 transition-all duration-300"
                     style={{ width: `${completionPercent}%` }}
                   />
                 </div>
-                <p className="text-xs text-[#9db5d6] mt-2">
+                <p className="text-xs text-brand-muted mt-2">
                   Complete your profile to improve trust and visibility.
                 </p>
               </div>
@@ -407,7 +407,7 @@ function CompanyProfile() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center text-[#7fa4c4] text-2xl font-bold">
+                    <div className="h-full w-full flex items-center justify-center text-brand text-2xl font-bold">
                       {formData.name?.[0]?.toUpperCase() || "C"}
                     </div>
                   )}
@@ -416,11 +416,11 @@ function CompanyProfile() {
                   <p className="text-sm text-white font-semibold">
                     Profile Image
                   </p>
-                  <p className="text-xs text-[#9db5d6] mt-1">
+                  <p className="text-xs text-brand-muted mt-1">
                     Upload a square image for best results.
                   </p>
-                  <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[rgba(127,164,196,0.2)] bg-[rgba(15,23,42,0.5)] text-sm text-[#b0c5db] hover:text-white hover:border-[rgba(127,164,196,0.4)] transition cursor-pointer">
-                    <Camera size={16} className="text-[#7fa4c4]" />
+                  <label className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[rgba(127,164,196,0.2)] bg-[rgba(15,23,42,0.5)] text-sm text-brand-soft hover:text-white hover:border-[rgba(127,164,196,0.4)] transition cursor-pointer">
+                    <Camera size={16} className="text-brand" />
                     {isUploading ? "Uploading..." : "Add profile image"}
                     <input
                       type="file"
@@ -436,7 +436,7 @@ function CompanyProfile() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Building2 size={14} /> Company Name
                     </label>
                     <input
@@ -444,12 +444,12 @@ function CompanyProfile() {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Company name"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Mail size={14} /> Email
                     </label>
                     <div className="mt-1 flex flex-col md:flex-row gap-3">
@@ -457,14 +457,14 @@ function CompanyProfile() {
                         name="email"
                         value={formData.email}
                         disabled
-                        className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/20 px-4 py-3 text-sm text-white/60 cursor-not-allowed"
+                        className="w-full rounded-lg bg-white/5 border border-brand/20 px-4 py-3 text-sm text-white/60 cursor-not-allowed"
                       />
                       {formData.isVerified ? (
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-[#7fa4c4]/30 bg-white/5 px-3 py-2 text-[#bcd0e6] shadow-[0_6px_18px_rgba(10,14,24,0.35)] backdrop-blur-md">
+                        <div className="inline-flex items-center gap-2 rounded-lg border border-brand/30 bg-white/5 px-3 py-2 text-[#bcd0e6] shadow-[0_6px_18px_rgba(10,14,24,0.35)] backdrop-blur-md">
                           <span className="text-xs font-semibold tracking-wide">
                             Verified
                           </span>
-                          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#7fa4c4]/15 text-[#7fa4c4]">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand/15 text-brand">
                             <ShieldCheck
                               className="animate-pulse"
                               size={18}
@@ -476,7 +476,7 @@ function CompanyProfile() {
                           type="button"
                           onClick={sendOtp}
                           disabled={otpSending}
-                          className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-brand/40 text-sm text-white bg-gradient-to-r from-brand/70 to-brand-2/70 hover:from-brand hover:to-brand-2 transition-all whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {otpSending ? "Sending..." : "Verify Email"}
                         </button>
@@ -485,7 +485,7 @@ function CompanyProfile() {
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Globe size={14} /> Website
                     </label>
                     <input
@@ -493,12 +493,12 @@ function CompanyProfile() {
                       value={formData.website}
                       onChange={handleInputChange}
                       placeholder="https://yourcompany.com"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Phone size={14} /> Phone
                     </label>
                     <input
@@ -506,14 +506,14 @@ function CompanyProfile() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="+1 (555) 123-4567"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <MapPin size={14} /> Address
                     </label>
                     <input
@@ -521,46 +521,46 @@ function CompanyProfile() {
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="123 Market Street, City"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Briefcase size={14} /> Industry
                     </label>
                     <select
                       name="industry"
                       value={formData.industry}
                       onChange={handleInputChange}
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     >
-                      <option value="" className="bg-[#282d36]">
+                      <option value="" className="bg-panel">
                         Select industry
                       </option>
-                      <option value="technology" className="bg-[#282d36]">
+                      <option value="technology" className="bg-panel">
                         Technology
                       </option>
-                      <option value="finance" className="bg-[#282d36]">
+                      <option value="finance" className="bg-panel">
                         Finance
                       </option>
-                      <option value="retail" className="bg-[#282d36]">
+                      <option value="retail" className="bg-panel">
                         Retail
                       </option>
-                      <option value="manufacturing" className="bg-[#282d36]">
+                      <option value="manufacturing" className="bg-panel">
                         Manufacturing
                       </option>
-                      <option value="healthcare" className="bg-[#282d36]">
+                      <option value="healthcare" className="bg-panel">
                         Healthcare
                       </option>
-                      <option value="other" className="bg-[#282d36]">
+                      <option value="other" className="bg-panel">
                         Other
                       </option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <FileText size={14} /> Description
                     </label>
                     <textarea
@@ -569,7 +569,7 @@ function CompanyProfile() {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder="Tell users about your company"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 resize-none"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 resize-none"
                     />
                   </div>
                 </div>
@@ -578,7 +578,7 @@ function CompanyProfile() {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleSave}
-                  className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white text-sm font-semibold hover:shadow-lg hover:shadow-[rgba(127,164,196,0.3)] transition"
+                  className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white text-sm font-semibold hover:shadow-lg hover:shadow-[rgba(127,164,196,0.3)] transition"
                 >
                   Save Changes
                 </button>
@@ -601,13 +601,13 @@ function CompanyProfile() {
                   setOtp("");
                   resetCooldownTime();
                 }}
-                className="text-[#9db5d6] hover:text-white transition"
+                className="text-brand-muted hover:text-white transition"
               >
                 ✕
               </button>
             </div>
             <div className="px-5 py-5 space-y-4">
-              <p className="text-sm text-[#9db5d6]">
+              <p className="text-sm text-brand-muted">
                 Enter the 6-digit OTP sent to your email address.
               </p>
               <input
@@ -615,9 +615,9 @@ function CompanyProfile() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 maxLength={6}
                 placeholder="Enter OTP"
-                className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"
+                className="w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"
               />
-              <div className="flex items-center justify-between text-xs text-[#9db5d6]">
+              <div className="flex items-center justify-between text-xs text-brand-muted">
                 <span>Didn’t receive it?</span>
                 {otpCoolDownTime > 0 ? (
                   <span>
@@ -629,7 +629,7 @@ function CompanyProfile() {
                     disabled={otpSending}
                     type="button"
                     onClick={sendOtp}
-                    className="text-[#7fa4c4] hover:text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="text-brand hover:text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {otpSending ? "Sending..." : "Resend OTP"}
                   </button>
@@ -643,7 +643,7 @@ function CompanyProfile() {
                   setOtp("");
                   resetCooldownTime();
                 }}
-                className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                className="text-sm text-brand-muted hover:text-white transition px-3 py-2"
               >
                 Cancel
               </button>
@@ -651,7 +651,7 @@ function CompanyProfile() {
                 type="button"
                 onClick={verifyOtp}
                 disabled={otpVerifying}
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {otpVerifying ? "Verifying..." : "Verify"}
               </button>

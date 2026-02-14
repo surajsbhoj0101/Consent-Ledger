@@ -279,9 +279,9 @@ function ConsentPurposes() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
 
@@ -298,14 +298,14 @@ function ConsentPurposes() {
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
 
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
 
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Purpose Managment
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Define how and why user data is accessed
                   </p>
                 </div>
@@ -317,14 +317,14 @@ function ConsentPurposes() {
             </div>
 
             {/* table of purposes */}
-            <div className="p-4 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-[#7fa4c4]/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
+            <div className="p-4 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-brand/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
               {/* heading and button */}
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Consent Purposes
                   </h2>
-                  <p className="text-[#9db5d6] text-sm mt-1">
+                  <p className="text-brand-muted text-sm mt-1">
                     Manage data usage purposes and consent requirements
                   </p>
                 </div>
@@ -340,7 +340,7 @@ function ConsentPurposes() {
                   className="
                     group inline-flex items-center gap-2
                     rounded-lg px-5 h-11
-                    bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0]
+                    bg-gradient-to-r from-brand to-brand-2
                     text-sm font-semibold text-white
                     border border-[rgba(255,255,255,0.1)]
                     hover:shadow-lg hover:shadow-[rgba(127,164,196,0.3)]
@@ -369,22 +369,22 @@ function ConsentPurposes() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Purpose Name
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Description
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Consent Type
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Duration
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Actions
                       </th>
                     </tr>
@@ -396,10 +396,10 @@ function ConsentPurposes() {
                           key={purpose.id}
                           className="hover:bg-[rgba(127,164,196,0.08)] transition-colors duration-150 group"
                         >
-                          <td className="px-6 py-4 text-white font-medium group-hover:text-[#7fa4c4] transition-colors">
+                          <td className="px-6 py-4 text-white font-medium group-hover:text-brand transition-colors">
                             {purpose.name}
                           </td>
-                          <td className="px-6 py-4 text-[#b0c5db] text-xs max-w-xs truncate">
+                          <td className="px-6 py-4 text-brand-soft text-xs max-w-xs truncate">
                             {purpose.description}
                           </td>
                           <td className="px-6 py-4">
@@ -413,7 +413,7 @@ function ConsentPurposes() {
                               {purpose.consentType}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-[#b0c5db]">
+                          <td className="px-6 py-4 text-brand-soft">
                             {purpose.duration}
                           </td>
                           <td className="px-6 py-4">
@@ -429,12 +429,12 @@ function ConsentPurposes() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]">
+                              <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-brand">
                                 <Eye size={16} />
                               </button>
                               <button
                                 onClick={() => handleEditPurpose(purpose)}
-                                className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]"
+                                className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-brand"
                               >
                                 <Edit2 size={16} />
                               </button>
@@ -452,11 +452,11 @@ function ConsentPurposes() {
                       <tr>
                         <td colSpan="6" className="px-6 py-36 mb-2 text-center">
                           <div className="flex flex-col items-center gap-2">
-                            <AlertCircle size={24} className="text-[#7fa4c4]" />
-                            <p className="text-[#b0c5db]">
+                            <AlertCircle size={24} className="text-brand" />
+                            <p className="text-brand-soft">
                               No purposes created yet
                             </p>
-                            <p className="text-xs text-[#9db5d6]">
+                            <p className="text-xs text-brand-muted">
                               Click "Create Purpose" to add your first consent
                               purpose
                             </p>
@@ -486,7 +486,7 @@ function ConsentPurposes() {
                   onClick={() => {
                     closeModal();
                   }}
-                  className="text-[#9db5d6] hover:text-white transition"
+                  className="text-brand-muted hover:text-white transition"
                 >
                   ✕
                 </button>
@@ -495,7 +495,7 @@ function ConsentPurposes() {
               {/* Body */}
               <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Purpose Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -503,7 +503,7 @@ function ConsentPurposes() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g., Marketing Analytics"
-                    className={`w-full rounded-lg bg-white/5 border ${errors.name ? "border-red-500" : "border-[#7fa4c4]/30"} px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300`}
+                    className={`w-full rounded-lg bg-white/5 border ${errors.name ? "border-red-500" : "border-brand/30"} px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300`}
                   />
                   {errors.name && (
                     <p className="text-xs text-red-400 mt-1">{errors.name}</p>
@@ -511,7 +511,7 @@ function ConsentPurposes() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Description <span className="text-red-400">*</span>
                   </label>
                   <textarea
@@ -519,7 +519,7 @@ function ConsentPurposes() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Describe what data will be collected and how it will be used..."
-                    className={`w-full rounded-lg bg-white/5 border ${errors.description ? "border-red-500" : "border-[#7fa4c4]/30"} px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 resize-none`}
+                    className={`w-full rounded-lg bg-white/5 border ${errors.description ? "border-red-500" : "border-brand/30"} px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 resize-none`}
                   />
                   {errors.description && (
                     <p className="text-xs text-red-400 mt-1">
@@ -530,46 +530,46 @@ function ConsentPurposes() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    <label className="text-xs font-semibold text-brand block mb-1">
                       Consent Type
                     </label>
                     <select
                       name="consentType"
                       value={formData.consentType}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     >
-                      <option value="Required" className="bg-[#282d36]">
+                      <option value="Required" className="bg-panel">
                         Required
                       </option>
-                      <option value="Optional" className="bg-[#282d36]">
+                      <option value="Optional" className="bg-panel">
                         Optional
                       </option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    <label className="text-xs font-semibold text-brand block mb-1">
                       Duration
                     </label>
                     <select
                       name="duration"
                       value={formData.duration}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     >
-                      <option value="1 month" className="bg-[#282d36]">
+                      <option value="1 month" className="bg-panel">
                         1 month
                       </option>
-                      <option value="3 months" className="bg-[#282d36]">
+                      <option value="3 months" className="bg-panel">
                         3 months
                       </option>
-                      <option value="6 months" className="bg-[#282d36]">
+                      <option value="6 months" className="bg-panel">
                         6 months
                       </option>
-                      <option value="12 months" className="bg-[#282d36]">
+                      <option value="12 months" className="bg-panel">
                         12 months
                       </option>
-                      <option value="Indefinite" className="bg-[#282d36]">
+                      <option value="Indefinite" className="bg-panel">
                         Indefinite
                       </option>
                     </select>
@@ -578,19 +578,19 @@ function ConsentPurposes() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
                   <div>
-                    <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                    <label className="text-xs font-semibold text-brand block mb-1">
                       Status
                     </label>
                     <select
                       name="status"
                       value={formData.status}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     >
-                      <option value="Active" className="bg-[#282d36]">
+                      <option value="Active" className="bg-panel">
                         Active
                       </option>
-                      <option value="Inactive" className="bg-[#282d36]">
+                      <option value="Inactive" className="bg-panel">
                         Inactive
                       </option>
                     </select>
@@ -604,14 +604,14 @@ function ConsentPurposes() {
                   onClick={() => {
                     closeModal();
                   }}
-                  className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                  className="text-sm text-brand-muted hover:text-white transition px-3 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="px-4 py-2 text-sm rounded-lg bg-[#7fa4c4] hover:bg-[#6b8fb0] text-white font-medium disabled:opacity-60 transition-all"
+                  className="px-4 py-2 text-sm rounded-lg bg-brand hover:bg-brand-2 text-white font-medium disabled:opacity-60 transition-all"
                 >
                   {isSubmitting
                     ? isEditMode

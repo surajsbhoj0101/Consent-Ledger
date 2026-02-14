@@ -115,9 +115,9 @@ function App() {
   return (
     <div
       style={robotoStyle}
-      className="relative min-h-screen overflow-hidden bg-[#14171d]"
+      className="relative min-h-screen overflow-hidden bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
 
       {/* large muted blobs */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
@@ -128,7 +128,7 @@ function App() {
 
       <nav className="relative z-20">
         <div className="absolute inset-0 backdrop-blur-3xl bg-white/[0.04]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent" />
 
         <div className="relative bg-transparent flex items-center justify-between px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <Link to="/" className="flex items-center gap-3">
@@ -144,9 +144,9 @@ function App() {
                 className={({ isActive }) =>
                   `
             relative transition
-            ${isActive ? "text-[#7fa4c4]" : "text-white/55 hover:text-white"}
+            ${isActive ? "text-brand" : "text-white/55 hover:text-white"}
             after:absolute after:-bottom-1 after:left-0 after:h-px
-            after:bg-[#7fa4c4]
+            after:bg-brand
             after:transition-all
             ${isActive ? "after:w-full" : "after:w-0 hover:after:w-full"}
           `
@@ -180,13 +180,13 @@ function App() {
               
               group relative w-[300px] rounded-lg
               bg-white/3 backdrop-blur-md p-8
-              border border-[#7fa4c4]
+              border border-brand
               hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.65)]
               transition-all duration-500 hover:-translate-y-1
             "
           >
             <div className="relative flex justify-center">
-              <div className="absolute h-36 w-36 rounded-full bg-[#7fa4c4]/25 blur-3xl" />
+              <div className="absolute h-36 w-36 rounded-full bg-brand/25 blur-3xl" />
               <Building2
                 size={120}
                 strokeWidth={1.1}
@@ -206,8 +206,8 @@ function App() {
               onClick={() => { handleLogin("company") }}
               className="
                 mt-6 w-full rounded-xl py-3 text-sm font-medium
-                bg-gradient-to-r from-[#7fa4c4]/65 to-[#5f88ad]/65
-                hover:from-[#7fa4c4] hover:to-[#5f88ad]
+                bg-gradient-to-r from-brand/65 to-brand-3/65
+                hover:from-brand hover:to-brand-3
                 shadow-lg transition-all
               "
             >
@@ -219,7 +219,7 @@ function App() {
             <RectangleHorizontal
               size={280}
               strokeWidth={0.8}
-              className="text-[#7fa4c4]/30"
+              className="text-brand/30"
             />
 
             {/* TOP */}
@@ -334,7 +334,7 @@ function App() {
       </main>
       <footer className="fixed bottom-0 inset-x-0 z-20">
         <div className="absolute inset-0 backdrop-blur-xl bg-white/[0.035]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4]/40 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/40 to-transparent" />
 
         <div className="relative flex items-center justify-center h-10 text-xs text-white/40 tracking-wide">
           © {new Date().getFullYear()} Consent Ledger · Verifiable Digital Consent

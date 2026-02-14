@@ -412,9 +412,9 @@ function ManageUsers() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
       {/* large muted blobs */}
@@ -430,13 +430,13 @@ function ManageUsers() {
             {/* Header */}
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Manage User
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Add, view, or remove users linked to your organization
                   </p>
                 </div>
@@ -446,13 +446,13 @@ function ManageUsers() {
               </div>
             </div>
 
-            <div className="p-5 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-[#7fa4c4]/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
+            <div className="p-5 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-brand/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Users
                   </h2>
-                  <p className="text-[#9db5d6] text-sm mt-1">
+                  <p className="text-brand-muted text-sm mt-1">
                     Manage data usage purposes and consent requirements
                   </p>
                 </div>
@@ -461,7 +461,7 @@ function ManageUsers() {
                   className="
                                   group inline-flex items-center gap-2
                                   rounded-lg px-5 h-11
-                                  bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0]
+                                  bg-gradient-to-r from-brand to-brand-2
                                   text-sm font-semibold text-white
                                   border border-[rgba(255,255,255,0.1)]
                                   hover:shadow-lg hover:shadow-[rgba(127,164,196,0.3)]
@@ -488,22 +488,22 @@ function ManageUsers() {
                   {/* Header */}
                   <thead>
                     <tr className="bg-gradient-to-r from-[rgba(127,164,196,0.1)] to-[rgba(127,164,196,0.05)] border-b border-[rgba(127,164,196,0.1)]">
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         User
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         ID
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Email
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Role
                       </th>
-                      <th className="px-6 py-4 text-left font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-left font-semibold text-brand">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-center font-semibold text-[#7fa4c4]">
+                      <th className="px-6 py-4 text-center font-semibold text-brand">
                         Actions
                       </th>
                     </tr>
@@ -519,14 +519,14 @@ function ManageUsers() {
                         >
                           {/* User */}
                           <td className="px-6 py-4">
-                            <span className="block text-white font-medium group-hover:text-[#7fa4c4] transition-colors truncate">
+                            <span className="block text-white font-medium group-hover:text-brand transition-colors truncate">
                               {user.name}
                             </span>
                           </td>
 
                           {/* ID */}
                           <td
-                            className="px-6 py-4 text-xs text-[#9db5d6] font-mono truncate cursor-pointer"
+                            className="px-6 py-4 text-xs text-brand-muted font-mono truncate cursor-pointer"
                             title="Click to copy"
                             onClick={() =>
                               navigator.clipboard.writeText(user.id)
@@ -536,7 +536,7 @@ function ManageUsers() {
                           </td>
 
                           {/* Email */}
-                          <td className="px-6 py-4 text-[#b0c5db] text-xs truncate">
+                          <td className="px-6 py-4 text-brand-soft text-xs truncate">
                             {user.email}
                           </td>
 
@@ -573,12 +573,12 @@ function ManageUsers() {
                           {/* Actions */}
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]">
+                              <button className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-brand">
                                 <Eye size={16} />
                               </button>
                               <button
                                 onClick={() => handleEditUser(user)}
-                                className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-[#7fa4c4]"
+                                className="p-2 hover:bg-[rgba(127,164,196,0.2)] rounded-lg transition-colors text-brand"
                               >
                                 <Edit2 size={16} />
                               </button>
@@ -596,9 +596,9 @@ function ManageUsers() {
                       <tr>
                         <td colSpan={7} className="px-6 py-36 text-center">
                           <div className="flex flex-col items-center gap-2">
-                            <AlertCircle size={24} className="text-[#7fa4c4]" />
-                            <p className="text-[#b0c5db]">No users added yet</p>
-                            <p className="text-xs text-[#9db5d6]">
+                            <AlertCircle size={24} className="text-brand" />
+                            <p className="text-brand-soft">No users added yet</p>
+                            <p className="text-xs text-brand-muted">
                               Add users to start sending consent requests
                             </p>
                           </div>
@@ -625,7 +625,7 @@ function ManageUsers() {
                   onClick={() => {
                     setAddUserOpen(false);
                   }}
-                  className="text-[#9db5d6] hover:text-white transition"
+                  className="text-brand-muted hover:text-white transition"
                 >
                   <X size={20} />
                 </button>
@@ -726,7 +726,7 @@ function ManageUsers() {
 
                 <button
                   onClick={closeModals}
-                  className="text-[#9db5d6] hover:text-white transition"
+                  className="text-brand-muted hover:text-white transition"
                 >
                   <X size={20} />
                 </button>
@@ -735,7 +735,7 @@ function ManageUsers() {
               <div className="px-5 py-4 space-y-4">
                 {/* Company User ID */}
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     User ID (Internal) <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -746,11 +746,11 @@ function ManageUsers() {
                     disabled={isEditMode}
                     className={`
                       w-full rounded-lg px-4 py-3 text-sm
-                      border border-[#7fa4c4]/30
+                      border border-brand/30
                       ${
                         isEditMode
                           ? "bg-white/5 text-slate-400 cursor-not-allowed"
-                          : "bg-white/5 text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4]"
+                          : "bg-white/5 text-white placeholder-white/30 focus:bg-white/8 focus:border-brand"
                       }
                       focus:outline-none transition-all duration-300
                     `}
@@ -763,7 +763,7 @@ function ManageUsers() {
 
                 {/* Name */}
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Full Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -773,8 +773,8 @@ function ManageUsers() {
                     placeholder="e.g., Rahul Sharma"
                     className="
                     w-full rounded-lg bg-white/5
-                    border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                    border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30
+                    focus:bg-white/8 focus:border-brand focus:outline-none
                     transition-all duration-300
                   "
                   />
@@ -782,7 +782,7 @@ function ManageUsers() {
 
                 {/* Email */}
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Email Address <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -793,8 +793,8 @@ function ManageUsers() {
                     placeholder="e.g., user@company.com"
                     className="
                       w-full rounded-lg bg-white/5
-                      border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
-                      focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                      border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30
+                      focus:bg-white/8 focus:border-brand focus:outline-none
                       transition-all duration-300
                     "
                   />
@@ -804,7 +804,7 @@ function ManageUsers() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Role <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -815,8 +815,8 @@ function ManageUsers() {
                     placeholder="e.g., viewer, user"
                     className="
                       w-full rounded-lg bg-white/5
-                      border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30
-                      focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                      border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30
+                      focus:bg-white/8 focus:border-brand focus:outline-none
                       transition-all duration-300
                     "
                   />
@@ -827,7 +827,7 @@ function ManageUsers() {
               <div className="flex justify-end gap-2 px-5 py-3 border-t border-white/10">
                 <button
                   onClick={closeModals}
-                  className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                  className="text-sm text-brand-muted hover:text-white transition px-3 py-2"
                 >
                   Cancel
                 </button>
@@ -835,7 +835,7 @@ function ManageUsers() {
                   onClick={isEditMode ? updateUser : addSingleUser}
                   className="
                     px-4 py-2 text-sm rounded-lg
-                    bg-[#7fa4c4] hover:bg-[#6b8fb0]
+                    bg-brand hover:bg-brand-2
                     text-white font-medium transition-all
                   "
                 >
@@ -867,7 +867,7 @@ function ManageUsers() {
                   onClick={() => {
                     setAddMultipleUserOpen(false);
                   }}
-                  className="text-[#9db5d6] hover:text-white transition"
+                  className="text-brand-muted hover:text-white transition"
                 >
                   <X size={20} />
                 </button>
@@ -884,7 +884,7 @@ function ManageUsers() {
                 {/* CSV Upload */}
 
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Upload CSV File <span className="text-red-400">*</span>
                   </label>
 
@@ -938,14 +938,14 @@ function ManageUsers() {
                         w-full rounded-xl border border-dashed border-[rgba(127,164,196,0.35)]
                         bg-[rgba(15,23,42,0.6)]
                         px-4 py-6 text-center
-                        hover:border-[#7fa4c4]/70
+                        hover:border-brand/70
                         hover:bg-[rgba(15,23,42,0.75)]
                         transition cursor-pointer group
                       "
                       onClick={handleButtonClick}
                     >
-                      <div className="p-3 rounded-full bg-white/5 group-hover:bg-[#7fa4c4]/10 transition mb-1">
-                        <UploadCloud size={24} className="text-[#7fa4c4]" />
+                      <div className="p-3 rounded-full bg-white/5 group-hover:bg-brand/10 transition mb-1">
+                        <UploadCloud size={24} className="text-brand" />
                       </div>
 
                       <p className="text-sm text-slate-300">
@@ -966,7 +966,7 @@ function ManageUsers() {
                         className="
                         mt-2 px-3 py-1.5 text-xs rounded-md
                         bg-[rgba(127,164,196,0.1)] border border-[rgba(127,164,196,0.2)]
-                        text-[#9db5d6] group-hover:bg-[#7fa4c4] group-hover:text-white
+                        text-brand-muted group-hover:bg-brand group-hover:text-white
                         transition-all duration-300
                       "
                       >
@@ -984,7 +984,7 @@ function ManageUsers() {
 
                 {/* CSV Format */}
                 <div>
-                  <label className="text-xs font-semibold text-[#7fa4c4] block mb-1">
+                  <label className="text-xs font-semibold text-brand block mb-1">
                     Expected CSV Columns
                   </label>
 
@@ -1011,7 +1011,7 @@ function ManageUsers() {
                   onClick={() => {
                     setAddMultipleUserOpen(false);
                   }}
-                  className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                  className="text-sm text-brand-muted hover:text-white transition px-3 py-2"
                 >
                   Cancel
                 </button>
@@ -1020,7 +1020,7 @@ function ManageUsers() {
                   onClick={handleUploadToCloud}
                   className="
                       px-4 py-2 text-sm rounded-lg
-                      bg-[#7fa4c4] hover:bg-[#6b8fb0]
+                      bg-brand hover:bg-brand-2
                       text-white font-medium transition-all
                     "
                 >

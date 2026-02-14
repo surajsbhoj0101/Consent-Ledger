@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+    --color-brand: #7fa4c4;
+    --color-brand-2: #6b8fb0;
+    --color-brand-3: #5f88ad;
+    --color-brand-muted: #9db5d6;
+    --color-brand-soft: #b0c5db;
+    --color-app-bg: #14171d;
+    --color-app-surface: #12151b;
+    --color-app-bg-deep: #0f1219;
+    --color-panel: #282d36;
+}
+
 .custom-scrollbar::-webkit-scrollbar{
     width: 4px;
 }

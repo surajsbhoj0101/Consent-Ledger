@@ -35,7 +35,7 @@ function WalletComponent({ tone = "company" }) {
   const connectHoverFrom = "#8fb4d4";
   const connectHoverTo = "#6a9abc";
   const dropdownBgClass =
-    "absolute right-0 mt-2 w-56 border rounded-lg shadow-xl overflow-hidden z-50 backdrop-blur-md bg-gradient-to-b from-[#14171d]/90 to-[#0f1219]/90";
+    "absolute right-0 mt-2 w-56 border rounded-lg shadow-xl overflow-hidden z-50 backdrop-blur-md bg-gradient-to-b from-app-bg/90 to-app-bg-deep/90";
 
   const handleLogout = async () => {
     try {

@@ -38,8 +38,8 @@ function UseSearchFilter({ value, onChange, total = 0 }) {
             className="
               w-full pl-9 pr-3 py-2.5 text-sm rounded-lg
               bg-white/5 text-white placeholder-white/30
-              border border-[#7fa4c4]/30
-              focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+              border border-brand/30
+              focus:bg-white/8 focus:border-brand focus:outline-none
               transition-all duration-300
             "
           />
@@ -57,18 +57,18 @@ function UseSearchFilter({ value, onChange, total = 0 }) {
             className="
               pl-9 pr-8 py-2.5 text-sm rounded-lg
               bg-white/5 text-white
-              border border-[#7fa4c4]/30
-              focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+              border border-brand/30
+              focus:bg-white/8 focus:border-brand focus:outline-none
               transition-all duration-300
             "
           >
             <option value="" disabled>
               Sort by
             </option>
-            <option value="time" className="bg-[#282d36]">
+            <option value="time" className="bg-panel">
               Sort by time
             </option>
-            <option value="name" className="bg-[#282d36]">
+            <option value="name" className="bg-panel">
               Sort by name
             </option>
           </select>

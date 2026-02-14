@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import User from "../models/user.model.js";
+import User from "../models/auth/user.model.js";
 import dotenv from "dotenv";
-import Company from "../models/company.model.js";
-import Consumer from "../models/consumer.model.js";
+import Company from "../models/company/company.model.js";
+import Consumer from "../models/consumer/consumer.model.js";
 
 dotenv.config();
 

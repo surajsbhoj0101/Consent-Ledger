@@ -156,8 +156,8 @@ function RegisterConsumer() {
   }
 
   return (
-    <div style={robotoStyle} className='relative min-h-screen overflow-hidden bg-[#14171d] py-12 px-4'>
-      <div className="absolute inset-0 bg-[#12151b]" />
+    <div style={robotoStyle} className='relative min-h-screen overflow-hidden bg-app-bg py-12 px-4'>
+      <div className="absolute inset-0 bg-app-surface" />
 
       {notice && (
         <div className="fixed top-4 right-4 z-50">
@@ -168,7 +168,7 @@ function RegisterConsumer() {
               backdrop-blur-md shadow-lg transition-all
               ${redNotice
                 ? "bg-red-500/20 border border-red-400/40 text-red-300"
-                : "bg-[#7fa4c4]/20 border border-[#7fa4c4]/40 text-[#b0c5db]"}
+                : "bg-brand/20 border border-brand/40 text-brand-soft"}
             `}
           >
             {notice}
@@ -186,7 +186,7 @@ function RegisterConsumer() {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute h-24 w-24 rounded-full bg-[#7fa4c4]/25 blur-3xl" />
+              <div className="absolute h-24 w-24 rounded-full bg-brand/25 blur-3xl" />
               <User
                 size={100}
                 strokeWidth={1.1}
@@ -207,7 +207,7 @@ function RegisterConsumer() {
           className="
             group relative rounded-2xl
             bg-white/3 backdrop-blur-md p-8 md:p-10
-            border border-[#7fa4c4]/40
+            border border-brand/40
             hover:shadow-[0_0_0_1px_#7fa4c4,0_0_75px_rgba(127,164,196,0.35)]
             transition-all duration-500
           "
@@ -216,13 +216,13 @@ function RegisterConsumer() {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm font-medium text-white/70">Profile Completion</span>
-              <span className={`text-sm font-semibold transition-colors text-[#7fa4c4]`}>
+              <span className={`text-sm font-semibold transition-colors text-brand`}>
                 {progressPercentage}%
               </span>
             </div>
-            <div className="w-full h-2.5 rounded-full bg-white/10 border border-[#7fa4c4]/20 overflow-hidden">
+            <div className="w-full h-2.5 rounded-full bg-white/10 border border-brand/20 overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0]`}
+                className={`h-full transition-all duration-500 rounded-full bg-gradient-to-r from-brand to-brand-2`}
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -256,7 +256,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    border-[#7fa4c4]/30 focus:border-[#7fa4c4]
+                    border-brand/30 focus:border-brand
                     
                   `}
                 />
@@ -286,7 +286,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                 border-[#7fa4c4]/30 focus:border-[#7fa4c4]
+                 border-brand/30 focus:border-brand
                   `}
                 />
                 {errors.lastName && (
@@ -321,7 +321,7 @@ function RegisterConsumer() {
                     text-white placeholder-white/30
                     focus:bg-white/8 focus:outline-none
                     transition-all duration-300
-                    border-[#7fa4c4]/30 focus:border-[#7fa4c4]
+                    border-brand/30 focus:border-brand
                     ${isEmailLocked ? "opacity-80 cursor-not-allowed" : ""}
                   `}
                 />
@@ -352,9 +352,9 @@ function RegisterConsumer() {
                   placeholder="+1 (555) 123-4567"
                   className="
                     w-full px-4 py-3 rounded-lg
-                    bg-white/5 border border-[#7fa4c4]/30
+                    bg-white/5 border border-brand/30
                     text-white placeholder-white/30
-                    focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                    focus:bg-white/8 focus:border-brand focus:outline-none
                     transition-all duration-300
                   "
                 />
@@ -378,9 +378,9 @@ function RegisterConsumer() {
                 placeholder="Street address"
                 className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                 "
               />
@@ -400,9 +400,9 @@ function RegisterConsumer() {
                 rows="4"
                 className="
                   w-full px-4 py-3 rounded-lg
-                  bg-white/5 border border-[#7fa4c4]/30
+                  bg-white/5 border border-brand/30
                   text-white placeholder-white/30
-                  focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none
+                  focus:bg-white/8 focus:border-brand focus:outline-none
                   transition-all duration-300
                   resize-none
                 "
@@ -416,8 +416,8 @@ function RegisterConsumer() {
               disabled={filledRequired < requiredFields.length}
               className="
                 w-full mt-8 py-3 px-6 rounded-xl
-                bg-gradient-to-r from-[#7fa4c4]/65 to-[#6b8fb0]/65
-                hover:from-[#7fa4c4] hover:to-[#6b8fb0]
+                bg-gradient-to-r from-brand/65 to-brand-2/65
+                hover:from-brand hover:to-brand-2
                 text-white font-medium text-sm
                 shadow-lg transition-all duration-300
                 hover:shadow-[0_0_30px_rgba(127,164,196,0.5)]

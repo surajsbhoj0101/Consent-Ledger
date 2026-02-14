@@ -198,9 +198,9 @@ function ConsumerProfile() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
 
@@ -213,13 +213,13 @@ function ConsumerProfile() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Profile
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Update your personal details
                   </p>
                 </div>
@@ -235,7 +235,7 @@ function ConsumerProfile() {
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Profile Details
                   </h2>
-                  <p className="text-[#9db5d6] text-sm mt-1">
+                  <p className="text-brand-muted text-sm mt-1">
                     Email cannot be edited once set
                   </p>
                 </div>
@@ -252,7 +252,7 @@ function ConsumerProfile() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center text-[#7fa4c4] text-2xl font-bold">
+                        <div className="h-full w-full flex items-center justify-center text-brand text-2xl font-bold">
                           {formData.firstName?.[0]?.toUpperCase() || "U"}
                         </div>
                       )}
@@ -261,20 +261,20 @@ function ConsumerProfile() {
                       <p className="text-lg text-white font-semibold">
                         {formData.firstName || "User"} {formData.lastName}
                       </p>
-                      <p className="text-xs text-[#9db5d6] mt-1">
+                      <p className="text-xs text-brand-muted mt-1">
                         {formData.email || "user@email.com"}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-3">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] text-[#7fa4c4] bg-[rgba(127,164,196,0.12)] border border-[rgba(127,164,196,0.2)]">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] text-brand bg-[rgba(127,164,196,0.12)] border border-[rgba(127,164,196,0.2)]">
                           {formData.phone || "Phone"}
                         </span>
-                        <span className="px-2.5 py-1 rounded-full text-[11px] text-[#b0c5db] bg-[rgba(15,23,42,0.6)] border border-[rgba(127,164,196,0.12)]">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] text-brand-soft bg-[rgba(15,23,42,0.6)] border border-[rgba(127,164,196,0.12)]">
                           {formData.address || "Address"}
                         </span>
                       </div>
                     </div>
-                    <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-[#7fa4c4]/15 hover:border-[#7fa4c4]/70 transition cursor-pointer">
-                      <Camera size={16} className="text-[#7fa4c4]" />
+                    <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-brand/40 text-sm text-white bg-brand/15 hover:border-brand/70 transition cursor-pointer">
+                      <Camera size={16} className="text-brand" />
                       Upload photo
                       <input
                         type="file"
@@ -288,8 +288,8 @@ function ConsumerProfile() {
 
                 <div className="rounded-2xl border border-[rgba(127,164,196,0.18)] bg-[rgba(15,23,42,0.55)] p-5 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-sm text-[#9db5d6]">
-                      <ShieldCheck size={16} className="text-[#7fa4c4]" />
+                    <div className="flex items-center gap-2 text-sm text-brand-muted">
+                      <ShieldCheck size={16} className="text-brand" />
                       Profile completion
                     </div>
                     <span className="text-sm font-semibold text-white">
@@ -298,11 +298,11 @@ function ConsumerProfile() {
                   </div>
                   <div className="h-2 w-full rounded-full bg-[rgba(127,164,196,0.15)] overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] transition-all duration-300"
+                      className="h-full rounded-full bg-gradient-to-r from-brand to-brand-2 transition-all duration-300"
                       style={{ width: `${completionPercent}%` }}
                     />
                   </div>
-                  <p className="text-xs text-[#9db5d6] mt-3">
+                  <p className="text-xs text-brand-muted mt-3">
                     Complete your profile to improve trust and visibility.
                   </p>
                 </div>
@@ -311,7 +311,7 @@ function ConsumerProfile() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <User size={14} /> First Name
                     </label>
                     <input
@@ -319,11 +319,11 @@ function ConsumerProfile() {
                       value={formData.firstName}
                       onChange={handleInputChange}
                       placeholder="First name"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <User size={14} /> Last Name
                     </label>
                     <input
@@ -331,11 +331,11 @@ function ConsumerProfile() {
                       value={formData.lastName}
                       onChange={handleInputChange}
                       placeholder="Last name"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Mail size={14} /> Email
                     </label>
                     <div className="mt-1 flex flex-col md:flex-row gap-3">
@@ -343,12 +343,12 @@ function ConsumerProfile() {
                         name="email"
                         value={formData.email}
                         disabled
-                        className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/20 px-4 py-3 text-sm text-white/60 cursor-not-allowed"
+                        className="w-full rounded-lg bg-white/5 border border-brand/20 px-4 py-3 text-sm text-white/60 cursor-not-allowed"
                       />
                       <button
                         type="button"
                         onClick={() => setOtpOpen(true)}
-                        className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-[#7fa4c4]/40 text-sm text-white bg-gradient-to-r from-[#7fa4c4]/70 to-[#6b8fb0]/70 hover:from-[#7fa4c4] hover:to-[#6b8fb0] transition-all whitespace-nowrap"
+                        className="inline-flex items-center justify-center px-4 py-3 rounded-lg border border-brand/40 text-sm text-white bg-gradient-to-r from-brand/70 to-brand-2/70 hover:from-brand hover:to-brand-2 transition-all whitespace-nowrap"
                       >
                         Verify Email
                       </button>
@@ -358,7 +358,7 @@ function ConsumerProfile() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <Phone size={14} /> Phone
                     </label>
                     <input
@@ -366,11 +366,11 @@ function ConsumerProfile() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="Phone number"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <MapPin size={14} /> Address
                     </label>
                     <input
@@ -378,11 +378,11 @@ function ConsumerProfile() {
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="Address"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-[#7fa4c4] font-semibold flex items-center gap-2">
+                    <label className="text-xs text-brand font-semibold flex items-center gap-2">
                       <FileText size={14} /> Bio
                     </label>
                     <textarea
@@ -391,7 +391,7 @@ function ConsumerProfile() {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder="Tell us about yourself"
-                      className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 resize-none"
+                      className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 resize-none"
                     />
                   </div>
                 </div>
@@ -400,7 +400,7 @@ function ConsumerProfile() {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleSave}
-                  className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white text-sm font-semibold hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition"
+                  className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white text-sm font-semibold hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition"
                 >
                   Save Changes
                 </button>
@@ -422,13 +422,13 @@ function ConsumerProfile() {
                   setOtpOpen(false);
                   setOtp("");
                 }}
-                className="text-[#9db5d6] hover:text-white transition"
+                className="text-brand-muted hover:text-white transition"
               >
                 ✕
               </button>
             </div>
             <div className="px-5 py-5 space-y-4">
-              <p className="text-sm text-[#9db5d6]">
+              <p className="text-sm text-brand-muted">
                 Enter the 6-digit OTP sent to your email address.
               </p>
               <input
@@ -436,13 +436,13 @@ function ConsumerProfile() {
                 onChange={(e) => setOtp(e.target.value)}
                 maxLength={6}
                 placeholder="Enter OTP"
-                className="w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"
+                className="w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 text-center tracking-[0.35em]"
               />
-              <div className="flex items-center justify-between text-xs text-[#9db5d6]">
+              <div className="flex items-center justify-between text-xs text-brand-muted">
                 <span>Didn’t receive it?</span>
                 <button
                   type="button"
-                  className="text-[#7fa4c4] hover:text-white transition"
+                  className="text-brand hover:text-white transition"
                 >
                   Resend OTP
                 </button>
@@ -454,13 +454,13 @@ function ConsumerProfile() {
                   setOtpOpen(false);
                   setOtp("");
                 }}
-                className="text-sm text-[#9db5d6] hover:text-white transition px-3 py-2"
+                className="text-sm text-brand-muted hover:text-white transition px-3 py-2"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all"
+                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-brand to-brand-2 text-white font-medium hover:shadow-[0_0_25px_rgba(127,164,196,0.6)] transition-all"
               >
                 Verify
               </button>

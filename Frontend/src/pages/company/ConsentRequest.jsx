@@ -189,9 +189,9 @@ function ConsentRequest() {
   return (
     <div
       style={robotoStyle}
-      className="relative h-screen overflow-y-auto custom-scrollbar bg-[#14171d]"
+      className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
-      <div className="absolute inset-0 bg-[#12151b]" />
+      <div className="absolute inset-0 bg-app-surface" />
       <NoticeBar notice={notice} redNotice={redNotice} onClick={setNotice} />
       <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
 
@@ -209,14 +209,14 @@ function ConsentRequest() {
             <div className="bg-transparent border-b border-[rgba(127,164,196,0.1)] flex-shrink-0">
               <div className="backdrop-blur-3xl bg-white/4" />
 
-              <div className="w-full h-px bg-linear-to-r from-transparent via-[#7fa4c4]/60 to-transparent" />
+              <div className="w-full h-px bg-linear-to-r from-transparent via-brand/60 to-transparent" />
 
               <div className="flex items-center justify-between px-4 md:px-8 py-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     Request Consents
                   </h1>
-                  <p className="text-[#9db5d6] text-xs md:text-sm mt-1">
+                  <p className="text-brand-muted text-xs md:text-sm mt-1">
                     Request consents from your users
                   </p>
                 </div>
@@ -227,13 +227,13 @@ function ConsentRequest() {
               </div>
             </div>
 
-            <div className="p-4 md:p-6 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-[#7fa4c4]/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
+            <div className="p-4 md:p-6 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-brand/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Create Consent Request
                   </h2>
-                  <p className="text-[#9db5d6] text-sm mt-1">
+                  <p className="text-brand-muted text-sm mt-1">
                     Select recipients, choose purposes, and send consent requests
                   </p>
                 </div>
@@ -244,7 +244,7 @@ function ConsentRequest() {
                   <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <UserCheck className="text-[#7fa4c4]" size={18} />
+                        <UserCheck className="text-brand" size={18} />
                         <h3 className="text-white font-semibold">
                           Select Users
                         </h3>
@@ -252,7 +252,7 @@ function ConsentRequest() {
                       <button
                         type="button"
                         onClick={handleSelectAllUsers}
-                        className="text-xs text-[#7fa4c4] hover:text-white transition"
+                        className="text-xs text-brand hover:text-white transition"
                       >
                         {allUsersSelected ? "Clear selection" : "Select all"}
                       </button>
@@ -269,16 +269,16 @@ function ConsentRequest() {
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
                           placeholder="Search by name, email, or ID"
-                          className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg bg-white/5 border border-[#7fa4c4]/30 text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                          className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg bg-white/5 border border-brand/30 text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                         />
                       </div>
-                      <span className="text-xs text-[#9db5d6]">
+                      <span className="text-xs text-brand-muted">
                         {selectedUsers.length} selected
                       </span>
                     </div>
 
                     <div className="mt-4 rounded-lg border border-[rgba(127,164,196,0.12)] overflow-hidden">
-                      <div className="grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-wide text-[#7fa4c4] bg-gradient-to-r from-[rgba(127,164,196,0.12)] to-[rgba(127,164,196,0.04)] border-b border-[rgba(127,164,196,0.12)]">
+                      <div className="grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-[11px] uppercase tracking-wide text-brand bg-gradient-to-r from-[rgba(127,164,196,0.12)] to-[rgba(127,164,196,0.04)] border-b border-[rgba(127,164,196,0.12)]">
                         <span />
                         <span>User</span>
                         <span>Email / ID</span>
@@ -291,7 +291,7 @@ function ConsentRequest() {
                             key={user.id}
                             className={`grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg border transition cursor-pointer ${
                               selectedUsers.includes(user.id)
-                                ? "border-[#7fa4c4] bg-[rgba(127,164,196,0.16)] shadow-lg"
+                                ? "border-brand bg-[rgba(127,164,196,0.16)] shadow-lg"
                                 : "border-[rgba(127,164,196,0.12)] bg-[rgba(15,23,42,0.4)] hover:border-[rgba(127,164,196,0.35)]"
                             }`}
                           >
@@ -299,17 +299,17 @@ function ConsentRequest() {
                               type="checkbox"
                               checked={selectedUsers.includes(user.id)}
                               onChange={() => toggleUser(user.id)}
-                              className="h-4 w-4 accent-[#7fa4c4]"
+                              className="h-4 w-4 accent-brand"
                             />
                             <div className="min-w-0">
                               <p className="text-sm text-white font-medium truncate">
                                 {user.name || "Unnamed user"}
                               </p>
-                              <p className="text-xs text-[#9db5d6] truncate">
+                              <p className="text-xs text-brand-muted truncate">
                                 {user.id}
                               </p>
                             </div>
-                            <p className="text-xs text-[#b0c5db] truncate">
+                            <p className="text-xs text-brand-soft truncate">
                               {user.email || "No email"}
                             </p>
                             <span
@@ -327,8 +327,8 @@ function ConsentRequest() {
                         ))
                       ) : (
                         <div className="flex flex-col items-center gap-2 py-12 text-center">
-                          <AlertCircle size={20} className="text-[#7fa4c4]" />
-                          <p className="text-sm text-[#b0c5db]">
+                          <AlertCircle size={20} className="text-brand" />
+                          <p className="text-sm text-brand-soft">
                             No users match your search
                           </p>
                         </div>
@@ -339,12 +339,12 @@ function ConsentRequest() {
 
                   <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <div className="flex items-center gap-2">
-                      <ClipboardList className="text-[#7fa4c4]" size={18} />
+                      <ClipboardList className="text-brand" size={18} />
                       <h3 className="text-white font-semibold">
                         Choose Consent Purposes
                       </h3>
                     </div>
-                    <p className="text-xs text-[#9db5d6] mt-1">
+                    <p className="text-xs text-brand-muted mt-1">
                       Select one or more purposes to request consent for.
                     </p>
 
@@ -361,7 +361,7 @@ function ConsentRequest() {
                               onClick={() => togglePurpose(purpose.id)}
                               className={`text-left p-4 rounded-xl border transition ${
                                 isSelected
-                                  ? "border-[#7fa4c4] bg-[rgba(127,164,196,0.18)]"
+                                  ? "border-brand bg-[rgba(127,164,196,0.18)]"
                                   : "border-[rgba(127,164,196,0.12)] bg-[rgba(15,23,42,0.4)] hover:border-[rgba(127,164,196,0.35)]"
                               }`}
                             >
@@ -379,10 +379,10 @@ function ConsentRequest() {
                                   {purpose.consentType || "Optional"}
                                 </span>
                               </div>
-                              <p className="text-xs text-[#9db5d6] mt-2 line-clamp-2">
+                              <p className="text-xs text-brand-muted mt-2 line-clamp-2">
                                 {purpose.description}
                               </p>
-                              <p className="text-[11px] text-[#7fa4c4] mt-3">
+                              <p className="text-[11px] text-brand mt-3">
                                 Duration: {purpose.duration || "12 months"}
                               </p>
                             </button>
@@ -390,8 +390,8 @@ function ConsentRequest() {
                         })
                       ) : (
                         <div className="col-span-full flex flex-col items-center gap-2 py-10 text-center">
-                          <AlertCircle size={20} className="text-[#7fa4c4]" />
-                          <p className="text-sm text-[#b0c5db]">
+                          <AlertCircle size={20} className="text-brand" />
+                          <p className="text-sm text-brand-soft">
                             No consent purposes available
                           </p>
                         </div>
@@ -403,7 +403,7 @@ function ConsentRequest() {
                 <div className="space-y-6">
                   <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <div className="flex items-center gap-2">
-                      <FileCheck className="text-[#7fa4c4]" size={18} />
+                      <FileCheck className="text-brand" size={18} />
                       <h3 className="text-white font-semibold">
                         Request Details
                       </h3>
@@ -411,7 +411,7 @@ function ConsentRequest() {
 
                     <div className="mt-4 space-y-4">
                       <div>
-                        <label className="text-xs text-[#7fa4c4] font-semibold">
+                        <label className="text-xs text-brand font-semibold">
                           Request Title
                         </label>
                         <input
@@ -424,12 +424,12 @@ function ConsentRequest() {
                             }))
                           }
                           placeholder="e.g., Q1 Analytics Consent"
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                         />
                       </div>
 
                       <div>
-                        <label className="text-xs text-[#7fa4c4] font-semibold">
+                        <label className="text-xs text-brand font-semibold">
                           Message to Users
                         </label>
                         <textarea
@@ -442,12 +442,12 @@ function ConsentRequest() {
                           }
                           placeholder="Explain why you're requesting consent and how data will be used."
                           rows={4}
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300 resize-none"
+                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 resize-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-xs text-[#7fa4c4] font-semibold">
+                        <label className="text-xs text-brand font-semibold">
                           Response Due Date
                         </label>
                         <input
@@ -459,7 +459,7 @@ function ConsentRequest() {
                               dueDate: e.target.value,
                             }))
                           }
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-[#7fa4c4]/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-[#7fa4c4] focus:outline-none transition-all duration-300"
+                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
                         />
                       </div>
                     </div>
@@ -467,7 +467,7 @@ function ConsentRequest() {
 
                   <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <h3 className="text-white font-semibold">Request Summary</h3>
-                    <div className="mt-4 space-y-3 text-sm text-[#9db5d6]">
+                    <div className="mt-4 space-y-3 text-sm text-brand-muted">
                       <div className="flex items-center justify-between">
                         <span>Recipients</span>
                         <span className="text-white font-semibold">
@@ -491,7 +491,7 @@ function ConsentRequest() {
                     <button
                       type="button"
                       disabled={!canSend}
-                      className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#7fa4c4] to-[#6b8fb0] hover:shadow-lg hover:shadow-[rgba(127,164,196,0.25)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand to-brand-2 hover:shadow-lg hover:shadow-[rgba(127,164,196,0.25)] transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Send size={16} />
                       Send Consent Request

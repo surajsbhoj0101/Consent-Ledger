@@ -23,5 +23,18 @@ services:
     image: redis:7
 
   
+  mail-service:
+    build: ./mail-service
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./mail-service/.env
+    depends_on:
+      - redis
+    volumes:
+      - ./mail-service:/app   # FIXED TYPO
+      - /app/node_modules
+
+  
 volumes:
   mongo_data:

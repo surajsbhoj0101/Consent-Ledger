@@ -111,30 +111,30 @@ function Sidebar({ role }) {
     : "border-r border-[rgba(127,164,196,0.15)]";
 
   const accentLineClass = isConsumer
-    ? "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30"
-    : "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#7fa4c4] to-transparent opacity-30";
+    ? "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-30"
+    : "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-30";
 
   const headerBorderClass = isConsumer
     ? "flex justify-between items-center px-4 py-3 border-b border-[rgba(127,164,196,0.1)]"
     : "flex justify-between items-center px-4 py-3 border-b border-[rgba(127,164,196,0.1)]";
 
   const toggleButtonClass = isConsumer
-    ? "text-white flex items-center justify-center hover:text-[#9db5d6] transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95"
-    : "text-white flex items-center justify-center hover:text-[#9db5d6] transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95";
+    ? "text-white flex items-center justify-center hover:text-brand-muted transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95"
+    : "text-white flex items-center justify-center hover:text-brand-muted transition-all duration-200 p-2 rounded-lg hover:bg-[rgba(127,164,196,0.15)] active:scale-95";
 
   const activeNavClass = isConsumer
-    ? "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-[#7fa4c4] shadow-lg shadow-[rgba(127,164,196,0.2)]"
-    : "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-[#7fa4c4] shadow-lg shadow-[rgba(127,164,196,0.2)]";
+    ? "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-brand shadow-lg shadow-[rgba(127,164,196,0.2)]"
+    : "bg-gradient-to-r from-[rgba(127,164,196,0.25)] to-[rgba(127,164,196,0.1)] text-brand shadow-lg shadow-[rgba(127,164,196,0.2)]";
 
   const inactiveNavClass = isConsumer
-    ? "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-[#7fa4c4]"
-    : "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-[#7fa4c4]";
+    ? "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-brand"
+    : "text-[#b0bfcc] hover:bg-[rgba(127,164,196,0.1)] hover:text-brand";
 
   const activeBgClass = isConsumer
-    ? "absolute inset-0 bg-gradient-to-r from-[#7fa4c4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-    : "absolute inset-0 bg-gradient-to-r from-[#7fa4c4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity";
+    ? "absolute inset-0 bg-gradient-to-r from-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+    : "absolute inset-0 bg-gradient-to-r from-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity";
 
-  const activeIconClass = isConsumer ? "text-[#7fa4c4]" : "text-[#7fa4c4]";
+  const activeIconClass = isConsumer ? "text-brand" : "text-brand";
   const sidebarBgClass = isConsumer
     ? "bg-gradient-to-b from-[rgba(30,41,59,0.55)] via-[rgba(20,30,48,0.45)] to-[rgba(15,23,42,0.35)]"
     : "bg-gradient-to-b from-[rgba(30,41,59,0.5)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.3)]";

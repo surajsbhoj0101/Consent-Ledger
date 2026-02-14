@@ -1,4 +1,4 @@
-import Consumer from "../models/consumer.model.js";
+import Consumer from "../models/consumer/consumer.model.js";
 
 export const editConsumerDetails = async (req, res) => {
   try {

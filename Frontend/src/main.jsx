@@ -32,7 +32,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <App />
-        <Snowfall snowflakeCount={60} />
+        {/*<Snowfall snowflakeCount={60} /> */}
       </>
     ),
   },
