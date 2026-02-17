@@ -4,14 +4,17 @@ import Wallet from "../../components/WalletComponent";
 import { BellRing, ShieldCheck, Eye, Lock, Check } from "lucide-react";
 import "../../index.css";
 import axios from "axios";
+import Loading from "../../components/loadingComponent";
 
 function ConsumerSettings() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
       try {
+        setIsLoading(true);
         const res = await axios.get("http://localhost:5000/api/auth/validate", {
           withCredentials: true,
         });
@@ -23,6 +26,8 @@ function ConsumerSettings() {
         }
       } catch (err) {
         setRole(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     getUser();
@@ -33,6 +38,7 @@ function ConsumerSettings() {
       style={robotoStyle}
       className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
+      <Loading isLoading={isLoading} loadingMessage="Loading settings" />
       <div className="absolute inset-0 bg-app-surface" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(127,164,196,0.12),transparent_65%),radial-gradient(circle_at_80%_30%,rgba(127,164,196,0.10),transparent_70%),radial-gradient(circle_at_50%_85%,rgba(127,164,196,0.08),transparent_70%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.95))]" />

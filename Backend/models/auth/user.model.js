@@ -11,7 +11,14 @@ const walletSchema = new mongoose.Schema(
 
         provider: {
             type: String,
-            enum: ["metamask", "web3auth_google", "web3auth_email", "web3auth_wallet", "web3auth_mobile"],
+            enum: [
+                "metamask",
+                "web3auth_google",
+                "web3auth_discord",
+                "web3auth_email",
+                "web3auth_wallet",
+                "web3auth_mobile",
+            ],
             required: true,
         },
 
@@ -39,6 +46,50 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["consumer", "company"],
             required: true,
+        },
+
+        email: {
+            type: String,
+            lowercase: true,
+            trim: true,
+            index: true,
+            sparse: true,
+        },
+
+        verifier: {
+            type: String,
+            lowercase: true,
+            trim: true,
+            index: true,
+            sparse: true,
+        },
+
+        verifierId: {
+            type: String,
+            lowercase: true,
+            trim: true,
+            index: true,
+            sparse: true,
+        },
+
+        authConnectionId: {
+            type: String,
+            trim: true,
+        },
+
+        aggregateVerifier: {
+            type: String,
+            trim: true,
+        },
+
+        groupedAuthConnectionId: {
+            type: String,
+            trim: true,
+        },
+
+        web3AuthUserId: {
+            type: String,
+            trim: true,
         },
 
         wallets: {

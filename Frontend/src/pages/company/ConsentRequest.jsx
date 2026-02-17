@@ -3,12 +3,13 @@ import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Wallet from "../../components/WalletComponent";
 import {
-  FileCheck,
   AlertCircle,
   Search,
   UserCheck,
   ClipboardList,
+  ListChecks,
   Send,
+  ShieldCheck,
 } from "lucide-react";
 import "../../index.css";
 import NoticeBar from "../../components/NoticeBar";
@@ -27,11 +28,7 @@ function ConsentRequest() {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedPurposes, setSelectedPurposes] = useState([]);
   const [userSearch, setUserSearch] = useState("");
-  const [requestDetails, setRequestDetails] = useState({
-    title: "",
-    message: "",
-    dueDate: "",
-  });
+  const [loading, setLoading] = useState(false);
 
   const getUser = async () => {
     try {
@@ -181,10 +178,83 @@ function ConsentRequest() {
     });
   };
 
+  const handleSendRequests = async () => {
+    if (!selectedUsers?.length || !selectedPurposes?.length) {
+      setRedNotice(true);
+      setNotice("Please fill all required fields");
+      return;
+    }
+
+    const payload = {
+      selectedUsers,
+      selectedPurposes,
+    };
+
+    try {
+      setLoading(true);
+      setRedNotice(false);
+      setNotice("");
+
+      const res = await axios.post(
+        "http://localhost:5000/send-consent-requests",
+        payload,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (res.data?.success) {
+        setNotice("Consent requests sent successfully ");
+        setRedNotice(false);
+
+        setSelectedUsers([]);
+        setSelectedPurposes([]);
+      } else {
+        setRedNotice(true);
+        setNotice(res.data?.message || "Something went wrong");
+      }
+    } catch (error) {
+      if (error.response) {
+        setNotice(error.response.data?.message || "Server error");
+      } else if (error.request) {
+        setNotice("Server not responding");
+      } else {
+        setNotice("Request failed");
+      }
+
+      setRedNotice(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const canSend =
     selectedUsers.length > 0 &&
-    selectedPurposes.length > 0 &&
-    requestDetails.title.trim();
+    selectedPurposes.length > 0;
+
+  const selectedPurposePreview = useMemo(() => {
+    const purposeMap = new Map(purposes.map((purpose) => [purpose.id, purpose]));
+    return selectedPurposes
+      .map((purposeId) => purposeMap.get(purposeId))
+      .filter(Boolean);
+  }, [purposes, selectedPurposes]);
+
+  const purposeTypeCounts = useMemo(() => {
+    return selectedPurposePreview.reduce(
+      (acc, purpose) => {
+        if ((purpose.consentType || "").toLowerCase() === "required") {
+          acc.required += 1;
+        } else {
+          acc.optional += 1;
+        }
+        return acc;
+      },
+      { required: 0, optional: 0 },
+    );
+  }, [selectedPurposePreview]);
 
   return (
     <div
@@ -227,21 +297,22 @@ function ConsentRequest() {
               </div>
             </div>
 
-            <div className="p-4 md:p-6 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-brand/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
+            <div className="animate-in-up p-4 md:p-6 mt-6 mx-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.65)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] backdrop-blur-xl hover:border-brand/60 transition-all duration-300 shadow-[0_18px_50px_rgba(10,14,24,0.5)]">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-white font-bold text-2xl tracking-tight">
                     Create Consent Request
                   </h2>
                   <p className="text-brand-muted text-sm mt-1">
-                    Select recipients, choose purposes, and send consent requests
+                    Select recipients, choose purposes, and send consent
+                    requests
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] gap-6">
+                <div className="space-y-6">
+                  <div className="animate-in-up animate-delay-1 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <UserCheck className="text-brand" size={18} />
@@ -285,59 +356,59 @@ function ConsentRequest() {
                         <span className="text-right">Status</span>
                       </div>
                       <div className="max-h-72 overflow-y-auto custom-scrollbar space-y-2 p-3">
-                      {filteredUsers.length > 0 ? (
-                        filteredUsers.map((user) => (
-                          <label
-                            key={user.id}
-                            className={`grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg border transition cursor-pointer ${
-                              selectedUsers.includes(user.id)
-                                ? "border-brand bg-[rgba(127,164,196,0.16)] shadow-lg"
-                                : "border-[rgba(127,164,196,0.12)] bg-[rgba(15,23,42,0.4)] hover:border-[rgba(127,164,196,0.35)]"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedUsers.includes(user.id)}
-                              onChange={() => toggleUser(user.id)}
-                              className="h-4 w-4 accent-brand"
-                            />
-                            <div className="min-w-0">
-                              <p className="text-sm text-white font-medium truncate">
-                                {user.name || "Unnamed user"}
-                              </p>
-                              <p className="text-xs text-brand-muted truncate">
-                                {user.id}
-                              </p>
-                            </div>
-                            <p className="text-xs text-brand-soft truncate">
-                              {user.email || "No email"}
-                            </p>
-                            <span
-                              className={`ml-auto text-xs px-2.5 py-1 rounded-full ${
-                                user.status === "Active"
-                                  ? "bg-green-500/20 text-green-300"
-                                  : user.status === "Invited"
-                                    ? "bg-yellow-500/20 text-yellow-300"
-                                    : "bg-slate-500/20 text-slate-300"
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.map((user) => (
+                            <label
+                              key={user.id}
+                              className={`grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-3 p-3 rounded-lg border transition cursor-pointer ${
+                                selectedUsers.includes(user.id)
+                                  ? "border-brand bg-[rgba(127,164,196,0.16)] shadow-lg"
+                                  : "border-[rgba(127,164,196,0.12)] bg-[rgba(15,23,42,0.4)] hover:border-[rgba(127,164,196,0.35)]"
                               }`}
                             >
-                              {user.status || "Unknown"}
-                            </span>
-                          </label>
-                        ))
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 py-12 text-center">
-                          <AlertCircle size={20} className="text-brand" />
-                          <p className="text-sm text-brand-soft">
-                            No users match your search
-                          </p>
-                        </div>
-                      )}
+                              <input
+                                type="checkbox"
+                                checked={selectedUsers.includes(user.id)}
+                                onChange={() => toggleUser(user.id)}
+                                className="h-4 w-4 accent-brand"
+                              />
+                              <div className="min-w-0">
+                                <p className="text-sm text-white font-medium truncate">
+                                  {user.name || "Unnamed user"}
+                                </p>
+                                <p className="text-xs text-brand-muted truncate">
+                                  {user.id}
+                                </p>
+                              </div>
+                              <p className="text-xs text-brand-soft truncate">
+                                {user.email || "No email"}
+                              </p>
+                              <span
+                                className={`ml-auto text-xs px-2.5 py-1 rounded-full ${
+                                  user.status === "Active"
+                                    ? "bg-green-500/20 text-green-300"
+                                    : user.status === "Invited"
+                                      ? "bg-yellow-500/20 text-yellow-300"
+                                      : "bg-slate-500/20 text-slate-300"
+                                }`}
+                              >
+                                {user.status || "Unknown"}
+                              </span>
+                            </label>
+                          ))
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 py-12 text-center">
+                            <AlertCircle size={20} className="text-brand" />
+                            <p className="text-sm text-brand-soft">
+                              No users match your search
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
+                  <div className="animate-in-up animate-delay-2 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
                     <div className="flex items-center gap-2">
                       <ClipboardList className="text-brand" size={18} />
                       <h3 className="text-white font-semibold">
@@ -400,73 +471,80 @@ function ConsentRequest() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
+                <div className="space-y-6 lg:pl-1">
+                  <div className="animate-in-up animate-delay-3 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_18px_48px_rgba(127,164,196,0.24)]">
                     <div className="flex items-center gap-2">
-                      <FileCheck className="text-brand" size={18} />
+                      <ShieldCheck className="text-brand" size={18} />
                       <h3 className="text-white font-semibold">
-                        Request Details
+                        Request Preview
                       </h3>
                     </div>
+                    <p className="text-xs text-brand-muted mt-1">
+                      Quick snapshot of what will be sent.
+                    </p>
 
-                    <div className="mt-4 space-y-4">
-                      <div>
-                        <label className="text-xs text-brand font-semibold">
-                          Request Title
-                        </label>
-                        <input
-                          type="text"
-                          value={requestDetails.title}
-                          onChange={(e) =>
-                            setRequestDetails((prev) => ({
-                              ...prev,
-                              title: e.target.value,
-                            }))
-                          }
-                          placeholder="e.g., Q1 Analytics Consent"
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
-                        />
+                    <div className="mt-4">
+                      <p className="text-[11px] uppercase tracking-wide text-brand-muted">
+                        Selected Purposes
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {selectedPurposePreview.length > 0 ? (
+                          <>
+                            {selectedPurposePreview.slice(0, 5).map((purpose) => (
+                              <span
+                                key={purpose.id}
+                                className="rounded-full border border-brand/30 bg-[rgba(127,164,196,0.16)] px-2.5 py-1 text-[11px] text-white"
+                              >
+                                {purpose.name}
+                              </span>
+                            ))}
+                            {selectedPurposePreview.length > 5 ? (
+                              <span className="rounded-full border border-[rgba(127,164,196,0.2)] bg-[rgba(15,23,42,0.35)] px-2.5 py-1 text-[11px] text-brand-muted">
+                                +{selectedPurposePreview.length - 5} more
+                              </span>
+                            ) : null}
+                          </>
+                        ) : (
+                          <span className="text-xs text-brand-muted">
+                            No purposes selected yet.
+                          </span>
+                        )}
                       </div>
+                    </div>
 
-                      <div>
-                        <label className="text-xs text-brand font-semibold">
-                          Message to Users
-                        </label>
-                        <textarea
-                          value={requestDetails.message}
-                          onChange={(e) =>
-                            setRequestDetails((prev) => ({
-                              ...prev,
-                              message: e.target.value,
-                            }))
-                          }
-                          placeholder="Explain why you're requesting consent and how data will be used."
-                          rows={4}
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white placeholder-white/30 focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300 resize-none"
-                        />
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-lg border border-[rgba(127,164,196,0.18)] bg-[rgba(15,23,42,0.35)] px-3 py-2.5">
+                        <p className="text-[11px] text-brand-muted">Required</p>
+                        <p className="text-base font-semibold text-blue-300">
+                          {purposeTypeCounts.required}
+                        </p>
                       </div>
+                      <div className="rounded-lg border border-[rgba(127,164,196,0.18)] bg-[rgba(15,23,42,0.35)] px-3 py-2.5">
+                        <p className="text-[11px] text-brand-muted">Optional</p>
+                        <p className="text-base font-semibold text-yellow-300">
+                          {purposeTypeCounts.optional}
+                        </p>
+                      </div>
+                    </div>
 
-                      <div>
-                        <label className="text-xs text-brand font-semibold">
-                          Response Due Date
-                        </label>
-                        <input
-                          type="date"
-                          value={requestDetails.dueDate}
-                          onChange={(e) =>
-                            setRequestDetails((prev) => ({
-                              ...prev,
-                              dueDate: e.target.value,
-                            }))
-                          }
-                          className="mt-1 w-full rounded-lg bg-white/5 border border-brand/30 px-4 py-3 text-sm text-white focus:bg-white/8 focus:border-brand focus:outline-none transition-all duration-300"
-                        />
+                    <div className="mt-4 rounded-lg border border-[rgba(127,164,196,0.18)] bg-[rgba(15,23,42,0.35)] p-3">
+                      <div className="flex items-center gap-2">
+                        <ListChecks size={14} className="text-brand" />
+                        <p className="text-xs font-semibold text-white">
+                          Ready Checklist
+                        </p>
+                      </div>
+                      <div className="mt-2 space-y-1.5 text-xs text-brand-muted">
+                        <p>{selectedUsers.length > 0 ? "Done" : "Pending"}: At least one recipient selected</p>
+                        <p>{selectedPurposes.length > 0 ? "Done" : "Pending"}: At least one purpose selected</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl">
-                    <h3 className="text-white font-semibold">Request Summary</h3>
+                  <div className="animate-in-up animate-delay-4 rounded-2xl border border-[rgba(127,164,196,0.2)] bg-gradient-to-br from-[rgba(30,41,59,0.6)] via-[rgba(20,30,48,0.4)] to-[rgba(15,23,42,0.25)] p-5 shadow-[0_12px_40px_rgba(10,14,24,0.45)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_18px_48px_rgba(127,164,196,0.24)]">
+                    <h3 className="text-white font-semibold">
+                      Request Summary
+                    </h3>
                     <div className="mt-4 space-y-3 text-sm text-brand-muted">
                       <div className="flex items-center justify-between">
                         <span>Recipients</span>
@@ -480,25 +558,17 @@ function ConsentRequest() {
                           {selectedPurposes.length}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span>Due Date</span>
-                        <span className="text-white font-semibold">
-                          {requestDetails.dueDate || "Not set"}
-                        </span>
-                      </div>
                     </div>
 
                     <button
                       type="button"
-                      disabled={!canSend}
+                      disabled={!canSend || loading}
+                      onClick={handleSendRequests}
                       className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand to-brand-2 hover:shadow-lg hover:shadow-[rgba(127,164,196,0.25)] transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Send size={16} />
-                      Send Consent Request
+                      {loading ? "Sending..." : "Send Consent Request"}
                     </button>
-                    <p className="mt-3 text-xs text-[#6b92b0]">
-                      Sending is UI-only in this view.
-                    </p>
                   </div>
                 </div>
               </div>

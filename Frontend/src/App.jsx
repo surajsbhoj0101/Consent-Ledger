@@ -22,6 +22,7 @@ import {
 
 
 import { BrowserProvider } from "ethers";
+import Loading from "./components/loadingComponent";
 
 
 function App() {
@@ -37,6 +38,8 @@ function App() {
 
 
   const [selectedRole, setSelectedRole] = useState(null);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleLogin = async (role) => {
     try {
@@ -56,6 +59,8 @@ function App() {
 
   async function handleCreateUser(userInfo, role) {
     try {
+      setPageLoading(true);
+      setLoadingMessage("Creating account");
       if (!provider) throw new Error("Web3Auth provider not ready");
       const ethersProvider = new BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
@@ -76,16 +81,24 @@ function App() {
         throw new Error("Registration failed");
       }
 
-      navigate(role === "company" ? "/company/register" : "/consumer/register");
+      setTimeout(() => {
+        navigate(role === "company" ? "/company/register" : "/consumer/register");
+      }, 500);
+
 
     } catch (err) {
       console.error("Registration failed:", err.response?.data || err);
       disconnect();
+    } finally {
+      setPageLoading(false);
+      setLoadingMessage("");
     }
   }
 
   async function checkIfAuthorized() {
     try {
+      setPageLoading(true);
+      setLoadingMessage("Checking session");
       const res = await axios.get('http://localhost:5000/api/auth/validate', {
         withCredentials: true
       })
@@ -96,13 +109,16 @@ function App() {
 
       if (res.data.data?.role == 'company') {
         navigate('/company/register')
-      }else{
+      } else {
         navigate('/consumer/register')
 
       }
     } catch (error) {
       console.log(error)
       navigate('/');
+    } finally {
+      setPageLoading(false);
+      setLoadingMessage("");
     }
   }
 
@@ -117,6 +133,7 @@ function App() {
       style={robotoStyle}
       className="relative min-h-screen overflow-hidden bg-app-bg"
     >
+      <Loading isLoading={isLoading || pageLoading} loadingMessage={loadingMessage} />
       <div className="absolute inset-0 bg-app-surface" />
 
       {/* large muted blobs */}
@@ -138,11 +155,11 @@ function App() {
           </Link>
 
           <div className="flex items-center gap-4 md:gap-10 text-sm font-medium">            {["docs", "about"].map((path) => (
-              <NavLink
-                key={path}
-                to={`/${path}`}
-                className={({ isActive }) =>
-                  `
+            <NavLink
+              key={path}
+              to={`/${path}`}
+              className={({ isActive }) =>
+                `
             relative transition
             ${isActive ? "text-brand" : "text-white/55 hover:text-white"}
             after:absolute after:-bottom-1 after:left-0 after:h-px
@@ -150,11 +167,11 @@ function App() {
             after:transition-all
             ${isActive ? "after:w-full" : "after:w-0 hover:after:w-full"}
           `
-                }
-              >
-                {path.charAt(0).toUpperCase() + path.slice(1)}
-              </NavLink>
-            ))}
+              }
+            >
+              {path.charAt(0).toUpperCase() + path.slice(1)}
+            </NavLink>
+          ))}
           </div>
         </div>
       </nav>

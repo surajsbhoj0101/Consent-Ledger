@@ -76,8 +76,7 @@ function WalletComponent({ tone = "company" }) {
                   <span className="text-sm text-gray-300">
                     {truncateAddress(address)}
                   </span>
-                  <CircleCheck 
-                  className="text-green-400 animate-pulse" />
+                  <CircleCheck className="text-green-400" />
                 </button>
 
                 {/* Dropdown Menu */}

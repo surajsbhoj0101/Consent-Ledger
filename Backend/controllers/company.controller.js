@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import redis from "../config/redis.js";
 import { sendMail } from "../services/sendmail.js";
+import { Queue } from "bullmq";
 
 function getOtpEmailHtml({ otp }) {
   const currentYear = new Date().getFullYear();
@@ -221,7 +222,7 @@ export const checkRegister = async (req, res) => {
         email: "",
       });
     }
-    console.log(data)
+    console.log(data);
     return res.status(200).json({
       isRegister: data.isRegistered,
       email: data.basicInformation?.email || "",
@@ -261,7 +262,7 @@ export const addSingleUser = async (req, res) => {
     console.log(existingUser);
 
     if (existingUser) {
-      console.log("here")
+      console.log("here");
       return res.status(409).json({
         success: false,
         message: "User already exists",
@@ -303,7 +304,7 @@ export const fetchUsers = async (req, res) => {
     }
 
     const users = await companyUserModel.find({ companyId: id });
-    console.log(users)
+    console.log(users);
     return res.status(200).json({
       success: true,
       users,
@@ -342,7 +343,7 @@ export const removeUser = async (req, res) => {
       success: true,
       usr,
     });
-  } catch (error) {}
+  } catch (error) { }
 };
 
 export const updateUser = async (req, res) => {
@@ -449,7 +450,7 @@ export const addMultipleUsers = async (req, res) => {
       .on("end", async () => {
         try {
           if (!users.length) {
-            fs.unlink(filePath, () => {});
+            fs.unlink(filePath, () => { });
             return res.status(400).json({
               success: false,
               message: "CSV is empty or invalid",
@@ -468,7 +469,7 @@ export const addMultipleUsers = async (req, res) => {
             failedCount = bulkError.writeErrors?.length || 0;
           }
 
-          fs.unlink(filePath, () => {});
+          fs.unlink(filePath, () => { });
 
           if (!insertedDocs.length) {
             return res.status(400).json({
@@ -488,7 +489,7 @@ export const addMultipleUsers = async (req, res) => {
             users: insertedDocs,
           });
         } catch (err) {
-          fs.unlink(filePath, () => {});
+          fs.unlink(filePath, () => { });
           return res.status(500).json({
             success: false,
             message: "Failed to insert users",
@@ -496,7 +497,7 @@ export const addMultipleUsers = async (req, res) => {
         }
       });
   } catch (error) {
-    if (filePath) fs.unlink(filePath, () => {});
+    if (filePath) fs.unlink(filePath, () => { });
     return res.status(500).json({
       success: false,
       message: "Failed to process file",
@@ -724,7 +725,7 @@ export const sendOtp = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000);
 
     await redis.setex(otpKey, 120, otp); // 2 min
-    console.log(otp)
+    console.log(otp);
     const mailOptions = {
       from: `"Consent Ledger" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -746,7 +747,6 @@ export const sendOtp = async (req, res) => {
       success: true,
       message: "OTP sent successfully",
     });
-
   } catch (error) {
     console.error("Send OTP Error:", error);
 
@@ -757,12 +757,11 @@ export const sendOtp = async (req, res) => {
   }
 };
 
-export const verifyOtp = async(req, res) =>{
+export const verifyOtp = async (req, res) => {
   try {
     const { id, role } = req; // from auth middleware
-    console.log("Came here to verify")
+    console.log("Came here to verify");
     if (role !== "company") {
-
       return res.status(403).json({
         success: false,
         message: "Unauthorized access",
@@ -770,7 +769,7 @@ export const verifyOtp = async(req, res) =>{
     }
 
     const { otp } = req.body;
-    console.log(otp)
+    console.log(otp);
     if (!otp) {
       return res.status(400).json({
         success: false,
@@ -805,7 +804,6 @@ export const verifyOtp = async(req, res) =>{
       success: true,
       message: "Email verified successfully",
     });
-
   } catch (error) {
     console.error("Verify OTP Error:", error);
 
@@ -814,4 +812,59 @@ export const verifyOtp = async(req, res) =>{
       message: "Internal server error",
     });
   }
-}
+};
+const emailQueue = new Queue("Email_jobs", {
+  connection: {
+    host: process.env.REDIS_HOST || "redis",
+    port: Number(process.env.REDIS_PORT || 6379),
+  },
+});
+
+const addEmailJob = async (emailData) => {
+  return emailQueue.add("send-consent-request", emailData);
+};
+
+export const sendConsentRequests = async (req, res) => {
+  try {
+    const { payload } = req.body;
+    const { id, role } = req; // from auth middleware
+    console.log("Came here to verify");
+    if (role !== "company") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    const emailData = (payload.selectedUsers ?? []).flatMap((user) =>
+      (payload.selectedPurposes ?? []).map((purpose) => ({
+        name: user.name,
+        email: user.email,
+        purposeTitle: purpose.name,
+        purposeDescription: purpose.description,
+        purposeDuration: purpose.duration,
+      })),
+    );
+
+    if (!emailData.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No users or purposes selected",
+      });
+    }
+
+    await Promise.all(emailData.map((element) => addEmailJob(element)));
+
+    return res.status(200).json({
+      success: true,
+      message: "All email jobs added to queue",
+      totalJobs: emailData.length,
+    });
+  } catch (error) {
+    console.error("Send consent requests queue error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add all email jobs to queue",
+    });
+  }
+};

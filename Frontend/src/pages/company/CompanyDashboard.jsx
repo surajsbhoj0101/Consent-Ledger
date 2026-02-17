@@ -1,6 +1,7 @@
 import React, { act, useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
+import Loading from "../../components/loadingComponent";
 import Wallet from "../../components/WalletComponent";
 import {
   TrendingDown,
@@ -19,10 +20,12 @@ import "../../index.css";
 function CompanyDashboard() {
   const robotoStyle = { fontFamily: "Roboto, sans-serif" };
   const [role, setRole] = useState();
+  const [isLoading, setIsLoading] = useState(false);
  
 
   const getUser = async () => {
     try {
+      setIsLoading(true);
       const res = await axios.get("http://localhost:5000/api/auth/validate", {
         withCredentials: true,
       });
@@ -42,6 +45,8 @@ function CompanyDashboard() {
       console.log(role);
     } catch (err) {
       setRole(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,6 +123,7 @@ function CompanyDashboard() {
       style={robotoStyle}
       className="relative h-screen overflow-y-auto custom-scrollbar bg-app-bg"
     >
+      <Loading isLoading={isLoading} loadingMessage="Loading dashboard" />
       <div className="absolute inset-0 bg-app-surface" />
 
       {/* large muted blobs */}

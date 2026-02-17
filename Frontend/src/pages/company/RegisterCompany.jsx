@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Building2, Mail, Phone, MapPin, Globe } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import Loading from "../../components/loadingComponent";
 
 function RegisterCompany() {
   const [formData, setFormData] = useState({
@@ -21,6 +22,8 @@ function RegisterCompany() {
   const [redNotice, setRedNotice] = useState(false);
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +77,8 @@ function RegisterCompany() {
     };
 
     try {
+      setIsLoading(true);
+      setLoadingMessage("Saving company profile");
       const response = await axios.put(
         `http://localhost:5000/api/company/edit-company-details`,
         payload,
@@ -88,7 +93,7 @@ function RegisterCompany() {
       setNotice("Company details updated successfully");
       setTimeout(() => {
         navigate("/company/dashboard");
-      }, 2000);
+      }, 500);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(
@@ -102,11 +107,16 @@ function RegisterCompany() {
         setRedNotice(true);
         setNotice("an error occured");
       }, 2000);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
   async function checkIfAuthorized() {
     try {
+      setIsLoading(true);
+      setLoadingMessage("Checking authorization");
       const res = await axios.get("http://localhost:5000/api/auth/validate", {
         withCredentials: true,
       });
@@ -131,11 +141,16 @@ function RegisterCompany() {
       }, 2000);
       setRedNotice(true);
       setNotice("You are not Registered !!");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   }
 
   async function checkIfAlreadyRegistered() {
     try {
+      setIsLoading(true);
+      setLoadingMessage("Loading company details");
       const res = await axios.get(
         "http://localhost:5000/api/company/check-registered",
         {
@@ -159,6 +174,9 @@ function RegisterCompany() {
       console.log(res.data.email);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   }
 
@@ -177,6 +195,7 @@ function RegisterCompany() {
       style={robotoStyle}
       className="relative min-h-screen overflow-hidden bg-panel py-12 px-4"
     >
+      <Loading isLoading={isLoading} loadingMessage={loadingMessage} />
       <div className="absolute inset-0 bg-app-surface" />
       {notice && (
         <div className="fixed top-4 right-4 z-50">
